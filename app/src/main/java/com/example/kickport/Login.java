@@ -38,6 +38,7 @@ public class Login extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Login.this, Register.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -69,6 +70,7 @@ public class Login extends AppCompatActivity {
                                 intent.putExtra( "user_name", UserName );
 
                                 startActivity( intent );
+                                finish();
 
                             } else {//로그인 실패시
                                 Toast.makeText( getApplicationContext(), "로그인에 실패하셨습니다.", Toast.LENGTH_SHORT ).show();
