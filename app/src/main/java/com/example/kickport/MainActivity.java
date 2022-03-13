@@ -112,7 +112,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btn_move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                naverMap.setLocationSource(locationSource);
+
+                naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+
             }
         });
 
@@ -132,17 +134,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId())
                 {
-                    case R.id.menu_login:
+
+                    case R.id.menu_accident_report:
+                        Log.d(TAG, "onNavigationItemSelected: 확인2");
+                        break;
+
+                    case R.id.menu_logout:
                         Intent intent = new Intent(MainActivity.this, Login.class);
 
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                         startActivity(intent);
+                        finish();
                         Log.d(TAG, "onNavigationItemSelected: 확인1");
                         break;
-                    case R.id.menu_accident_report:
-                        Log.d(TAG, "onNavigationItemSelected: 확인2");
-                        break;
+
                 }
                 return false;
             }
