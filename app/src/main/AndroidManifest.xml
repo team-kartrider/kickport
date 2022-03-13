@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kickport">
         <activity
+            android:name=".NaverLogin"
+            android:exported="false" />
+        <activity
             android:name=".Register"
             android:exported="false" />
         <activity
@@ -33,4 +36,3 @@
     </application>
 
 </manifest>
-
