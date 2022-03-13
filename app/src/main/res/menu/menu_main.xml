@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_login"
+        android:title="로그인/회원가입"/>
+
+    <item
+        android:id="@+id/menu_driving_report"
+        android:title="주행기록"
+
+        />
+    <item
+        android:id="@+id/menu_accident_report"
+        android:title="사고기록"
+
+        />
+
+</menu>
