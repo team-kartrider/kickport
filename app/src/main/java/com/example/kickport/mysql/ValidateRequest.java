@@ -8,19 +8,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ValidateRequest extends StringRequest {
-    //서버 url 설정(php파일 연동)
-    final static  private String URL="http://183.101.85.213:8645/UserValidate.php";
-    private Map<String, String> map;
+   //서버 url 설정(php파일 연동)
+   final static private String URL = "http://183.101.85.213:8645/UserValidate.php";
+   private Map<String, String> map;
 
-    public ValidateRequest(String UserEmail, Response.Listener<String> listener){
-        super(Method.POST, URL, listener,null);
+   public ValidateRequest(String UserEmail, Response.Listener<String> listener){
+      super(Method.POST, URL, listener,null);
 
-        map = new HashMap<>();
-        map.put("UserEmail", UserEmail);
-    }
+      map = new HashMap<>();
+      map.put("user_id", UserEmail);
+   }
 
-    @Override
-    protected Map<String, String> getParams() throws AuthFailureError {
-        return map;
-    }
+   @Override
+   protected Map<String, String> getParams() throws AuthFailureError {
+      return map;
+   }
 }

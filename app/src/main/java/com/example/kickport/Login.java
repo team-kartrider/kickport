@@ -1,6 +1,5 @@
 package com.example.kickport;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -21,26 +20,26 @@ import org.json.JSONObject;
 public class Login extends AppCompatActivity {
 
     private EditText login_email, login_password;
-    private Button login_button, join_button;
+    private Button join_move, login_button;
 
-    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate( savedInstanceState );
-        setContentView( R.layout.activity_login );
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
 
-        login_email = findViewById( R.id.login_email );
-        login_password = findViewById( R.id.login_password );
+        login_email = findViewById(R.id.login_email);
+        login_password = findViewById(R.id.login_password);
 
-        join_button = (Button) findViewById( R.id.join );
-        join_button.setOnClickListener( new View.OnClickListener() {
+
+        //join버튼 클릭시 register페이지로 이동
+        join_move = findViewById(R.id.join);
+        join_move.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent( Login.this, Register.class );
-                startActivity( intent );
+            public void onClick(View v) {
+                Intent intent = new Intent(Login.this, Register.class);
+                startActivity(intent);
             }
         });
-
 
         login_button = findViewById( R.id.login );
         login_button.setOnClickListener( new View.OnClickListener() {
@@ -58,16 +57,17 @@ public class Login extends AppCompatActivity {
 
                             if(success) {//로그인 성공시
 
-                                String UserEmail = jsonObject.getString( "UserEmail" );
-                                String UserPwd = jsonObject.getString( "UserPwd" );
-                                String UserName = jsonObject.getString( "UserName" );
+                                String UserEmail = jsonObject.getString( "user_id" );
+                                String UserPwd = jsonObject.getString( "user_password" );
+                                String UserName = jsonObject.getString( "user_name" );
 
                                 Toast.makeText( getApplicationContext(), String.format("%s님 환영합니다.", UserName), Toast.LENGTH_SHORT ).show();
                                 Intent intent = new Intent( Login.this, MainActivity.class );
 
-                                intent.putExtra( "UserEmail", UserEmail );
-                                intent.putExtra( "UserPwd", UserPwd );
-                                intent.putExtra( "UserName", UserName );
+
+                                intent.putExtra( "user_id", UserEmail );
+                                intent.putExtra( "user_password", UserPwd );
+                                intent.putExtra( "user_name", UserName );
 
                                 startActivity( intent );
 

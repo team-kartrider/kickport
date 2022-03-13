@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -21,14 +22,14 @@
             android:layout_marginTop="20dp">
 
             <Button
-                android:id="@+id/login_back"
+                android:id="@+id/join_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="back" />
 
             <Button
-                android:id="@+id/login_menu"
+                android:id="@+id/join_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -55,7 +56,6 @@
                 android:orientation="vertical" >
 
                 <TextView
-                    android:id="@+id/join_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
@@ -67,6 +67,7 @@
                     android:layout_height="match_parent">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/join_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="이름"
@@ -74,7 +75,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
-                    android:id="@+id/join_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
@@ -86,6 +86,7 @@
                     android:layout_height="match_parent">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/join_email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="이메일"
@@ -100,7 +101,6 @@
                     android:layout_gravity="right"/>
 
                 <TextView
-                    android:id="@+id/join_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
@@ -112,6 +112,7 @@
                     android:layout_height="match_parent">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/join_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="비밀번호"
@@ -123,6 +124,7 @@
                     android:layout_height="match_parent">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/join_pwdcheck"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="비밀번호 확인"
@@ -169,7 +171,6 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/join_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
@@ -183,11 +184,11 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:id="@+id/join_phone"
                         android:hint="전화번호"
                         android:inputType="phone"/>
                 </com.google.android.material.textfield.TextInputLayout>
                 <TextView
-                    android:id="@+id/join_guardian_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
@@ -199,6 +200,7 @@
                     android:layout_height="match_parent">
 
                     <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/join_guardian_phone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="보호자 전화번호"
