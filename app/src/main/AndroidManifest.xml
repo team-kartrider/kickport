@@ -4,12 +4,8 @@
     package="com.example.kickport">
 
     <uses-permission android:name="android.permission.INTERNET" />
-<<<<<<< HEAD
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-=======
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
->>>>>>> origin/main
 
     <application
         android:allowBackup="true"
@@ -50,10 +46,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="4dv6z2cwt3" />
