@@ -45,6 +45,7 @@ import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.util.FusedLocationSource;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -75,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Toolbar toolbar;
     private NavigationView nav;
 
+    private Location mLastlocation = null;
+    private double speed, calSpeed, getSpeed;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
 
         if (!checkLocationServicesStatus()) {
 
@@ -155,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
@@ -282,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+
     //여기부터는 GPS 활성화를 위한 메소드들
     private void showDialogForLocationServiceSetting() {
 
@@ -306,6 +313,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         builder.create().show();
     }
+
+
 
 
     @Override
@@ -337,6 +346,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
+
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.naverMap = naverMap;
@@ -344,14 +354,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
 
         final TextView textview_address = (TextView)findViewById(R.id.address);
+        /*
         final TextView textView_lat = findViewById(R.id.lat);
         final TextView textView_lon = findViewById(R.id.lon);
+        */
+        final TextView tvGetSpeed = findViewById(R.id.tvGetspeed);
+        final TextView tvCalSpeed = findViewById(R.id.tvCalspeed);
+
 
         naverMap.addOnLocationChangeListener(new NaverMap.OnLocationChangeListener() {
             @Override
             public void onLocationChange(@NonNull Location location) {
 
                 gpsTracker = new GpsTracker(MainActivity.this);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                double deltaTime = 0;
+
+                // getSpeed() 함수를 이용하여 속도 계산
+                getSpeed = Double.parseDouble(String.format("%.3f", location.getSpeed()));
+
+
+                // 위치 변경이 두번째로 변경된 경우 계산에 의해 속도 계산
+                if(mLastlocation != null){
+                    deltaTime = (location.getTime() - mLastlocation.getTime()) / 1000.0;
+                    // 속도 계산
+                    speed = mLastlocation.distanceTo(location) / deltaTime;
+                    calSpeed = Double.parseDouble(String.format("%.3f", speed));
+                }
+                // 현재위치를 지난 위치로 변경
+                mLastlocation = location;
 
                 double latitude = gpsTracker.getLatitude();
                 double longitude = gpsTracker.getLongitude();
@@ -364,9 +396,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String lat_str = Double.toString(latitude);
                 String lon_str = Double.toString(longitude);
 
+                /*
                 textView_lat.setText(lat_str);
                 textView_lon.setText(lon_str);
+                 */
 
+                String gs_str = Double.toString(getSpeed);
+                String cs_str = Double.toString(calSpeed);
+
+                tvGetSpeed.setText("구한 속도: " + gs_str);
+                tvCalSpeed.setText("함수 속도: " + cs_str);
 
             }
         });
