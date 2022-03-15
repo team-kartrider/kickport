@@ -1,4 +1,4 @@
-package com.example.kickport;
+package com.example.myren.PermissionSetting;
 
 import android.Manifest;
 import android.app.Activity;
@@ -17,7 +17,7 @@ public class PermissionSupport {
     private Context context;
     private Activity activity;
     private boolean check = false;
-    
+
     //요청할 권한 배열로 저장
     private String[] permissions = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
