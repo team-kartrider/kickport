@@ -1,8 +1,10 @@
-package com.example.myren.PermissionSetting;
+/*
+package com.example.kickport.PermissionSetting;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
@@ -14,17 +16,19 @@ import java.util.List;
 
 public class PermissionSupport {
 
+
+
     private Context context;
     private Activity activity;
     private boolean check = false;
+
+
 
     //요청할 권한 배열로 저장
     private String[] permissions = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_SMS,
-            Manifest.permission.CALL_PHONE
+
     };
 
     private List permissionList;
@@ -92,3 +96,4 @@ public class PermissionSupport {
     }
 
 }
+*/

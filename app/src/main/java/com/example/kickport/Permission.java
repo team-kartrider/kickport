@@ -1,4 +1,4 @@
-package com.example.kickport;
+/*package com.example.kickport;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -6,18 +6,23 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
-import com.example.kickport.PermissionSupport;
+import com.example.kickport.PermissionSetting.PermissionSupport;
 
 public class Permission extends AppCompatActivity {
 
     Button ok;
+    String test = "test";
 
     private PermissionSupport permission;
 
@@ -26,17 +31,13 @@ public class Permission extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_permission);
 
-        permissionCheck();
-
         ok = (Button) findViewById(R.id.permission_bt);
 
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(Permission.this, Login.class);
-                startActivity(intent);
-                finish();
+                permissionCheck();
 
             }
         });
@@ -74,7 +75,6 @@ public class Permission extends AppCompatActivity {
     //위치 항상 허용 다이얼로그
     public void permissionDialog(){
 
-        /*
         String message, title, button;
 
 
@@ -84,7 +84,7 @@ public class Permission extends AppCompatActivity {
 
         if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
-            AlertDialog.Builder oDialog = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog);
+            AlertDialog.Builder oDialog = new AlertDialog.Builder(this);
 
             oDialog.setMessage(message).setTitle(title).setPositiveButton(button, new DialogInterface.OnClickListener() {
                 @Override
@@ -98,25 +98,8 @@ public class Permission extends AppCompatActivity {
                     .setCancelable(false)
                     .show();
 
-        } */
-
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(Permission.this);
-        builder.setTitle("위치 서비스 비활성화");
-        builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n"
-                + "위치 설정을 수정하실래요?");
-        builder.setCancelable(true);
-        builder.setPositiveButton("설정", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                ActivityCompat.requestPermissions( Permission.this, new String[] { Manifest.permission.ACCESS_BACKGROUND_LOCATION }, 0 );
-            }
-        });
-        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                dialog.cancel();
-            }
-        });
-        builder.create().show();
+        }
     }
 }
+
+ */
