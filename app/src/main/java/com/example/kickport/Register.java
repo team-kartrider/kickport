@@ -97,28 +97,32 @@ public class Register extends AppCompatActivity {
             public void onClick(View view) {
 
                 String UserEmail = join_email.getText().toString();
-                if (validate) {
-                    return; //검증 완료
-                }
 
-                if (UserEmail.equals("")) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
-                    dialog = builder.setMessage("아이디를 입력하세요.").setPositiveButton("확인", null).create();
-                    dialog.show();
-                    return;
-                }
 
                 if(pattern.matcher(UserEmail).matches()){ // 이메일 정규식 맞는 경우
                     ck = 1;
-                    return;
+                    if (validate) {
+                        return; //검증 완료
+                    }
                 }
 
-                if(ck == 0){ // 이메일 정규식 틀린 경우
+                else if(ck == 0){ // 이메일 정규식 틀린 경우
+
+                    if (UserEmail.equals("")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
+                        dialog = builder.setMessage("아이디를 입력하세요.").setPositiveButton("확인", null).create();
+                        dialog.show();
+                        return;
+                    }
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
                     dialog = builder.setMessage("아이디 형식을 확인하세요.").setPositiveButton("확인", null).create();
                     dialog.show();
+                    ck = 0;
                     return;
+
                 }
+
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
@@ -138,7 +142,7 @@ public class Register extends AppCompatActivity {
                             else {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
                                 dialog = builder.setMessage("이미 존재하는 아이디입니다.").setNegativeButton("확인", null).create();
-                                check = 0;
+                                ck = 0;
                                 dialog.show();
                             }
                         } catch (JSONException e) {
@@ -189,18 +193,17 @@ public class Register extends AppCompatActivity {
                     public void onResponse(String response) {
 
                         try {
-                            JSONObject jsonObject = new JSONObject( response );
-                            boolean success = jsonObject.getBoolean( "success" );
 
-                            //회원가입 성공시
+                            //회원가입 성공시 -> 비번안같아도 db에 계속들어감ㅠㅠ
                             if(UserPwd.equals(PassCk)) {
+                                JSONObject jsonObject = new JSONObject( response );
+                                boolean success = jsonObject.getBoolean( "success" );
                                 if (success) {
 
                                     Toast.makeText(getApplicationContext(), String.format("%s님 가입을 환영합니다.", UserName), Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(Register.this, Login.class);
                                     startActivity(intent);
                                     finish();
-                                    check = 1; // 비번 동일한 상태
 
                                     //회원가입 실패시
                                 } else {
@@ -211,23 +214,24 @@ public class Register extends AppCompatActivity {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
                                 dialog = builder.setMessage("비밀번호가 동일하지 않습니다.").setNegativeButton("확인", null).create();
                                 dialog.show();
-                                check = 0; // 비번 아직 동일하지 않은 상태
-                                return;
+                                check = 1; // 비번 아직 동일하지 않은 상태
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
+
                     }
+
                 };
 
-                if(check == 1){ //비번 동일할 때만 db에 저장
-                    //서버로 Volley를 이용해서 요청
-                    RegisterRequest registerRequest = new RegisterRequest( UserName, UserEmail, UserPwd, UserYear, UserMonth, UserDay, UserPhone, UserGuardPhone, UserInsurance, responseListener);
-                    RequestQueue queue = Volley.newRequestQueue( Register.this );
-                    queue.add( registerRequest );    
-                }
+                //서버로 Volley를 이용해서 요청
+                RegisterRequest registerRequest = new RegisterRequest(UserName, UserEmail, UserPwd, UserYear, UserMonth, UserDay, UserPhone, UserGuardPhone, UserInsurance, responseListener);
+                RequestQueue queue = Volley.newRequestQueue(Register.this);
+                queue.add(registerRequest);
+
+
             }
         });
     }
