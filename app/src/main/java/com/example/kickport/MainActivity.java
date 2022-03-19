@@ -15,6 +15,10 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -49,7 +53,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
 
     private GpsTracker gpsTracker;
 
@@ -78,6 +82,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Location mLastlocation = null;
     private double speed, calSpeed, getSpeed;
+
+    // 센서이용-중력 제외
+    private SensorManager sensorManager1;
+    private Sensor senAccelerometer1;
+
+    // 센서이용-중력 포함
+    private SensorManager sensorManager2;
+    private Sensor senAccelerometer2;
+
+    private long lastUpdate = 0;
+    private float last_x, last_y, last_z;
+
 
 
     @Override
@@ -111,6 +127,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //액션바 변경하기(들어갈 수 있는 타입 : Toolbar type
         setSupportActionBar(toolbar);
+
+        sensorManager1 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senAccelerometer1 = sensorManager1.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        // 센서 종류 설정 - linear acceleration sensor 이용
+
+        sensorManager2 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senAccelerometer2 = sensorManager2.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        // 센서 종류 설정 - accelerometer sensor 이용
+
+
+
+
+        sensorManager1.registerListener( MainActivity.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager2.registerListener( MainActivity.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
 
         // 주행 시작 버튼 누른 경우 - 현 위치 및 타이머 잡기로~
         btn_move = (Button) findViewById(R.id.start);
@@ -418,4 +448,79 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        Sensor mySensor = sensorEvent.sensor;
+
+        // 중력 제외
+        final TextView tlx = findViewById(R.id.lx);
+        final TextView tly = findViewById(R.id.ly);
+        final TextView tlz = findViewById(R.id.lz);
+
+        // 중력 포함
+        final TextView tx = findViewById(R.id.x);
+        final TextView ty = findViewById(R.id.y);
+        final TextView tz = findViewById(R.id.z);
+
+        // 중력 제외인 경우
+        if(mySensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
+
+            float x = sensorEvent.values[0];
+            float y = sensorEvent.values[1];
+            float z = sensorEvent.values[2];
+
+            String x_str = Float.toString(x);
+            String y_str = Float.toString(y);
+            String z_str = Float.toString(z);
+            tlx.setText("x: " + x_str);
+            tly.setText("y: " + y_str);
+            tlz.setText("z: " + z_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간
+
+
+            // 0.1초 간격으로 가속도값을 업데이트
+            if((curTime - lastUpdate) > 100) {
+                lastUpdate = curTime;
+
+                //갱신
+                last_x = x;
+                last_y = y;
+                last_z = z;
+            }
+        }
+
+        // 중력 포함인 경우
+        else if(mySensor.getType() == Sensor.TYPE_ACCELEROMETER){
+
+            float x = sensorEvent.values[0];
+            float y = sensorEvent.values[1];
+            float z = sensorEvent.values[2];
+
+            String x_str = Float.toString(x);
+            String y_str = Float.toString(y);
+            String z_str = Float.toString(z);
+            tx.setText("x: " + x_str);
+            ty.setText("y: " + y_str);
+            tz.setText("z: " + z_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간
+
+
+            // 0.1초 간격으로 가속도값을 업데이트
+            if((curTime - lastUpdate) > 100) {
+                lastUpdate = curTime;
+
+                //갱신
+                last_x = x;
+                last_y = y;
+                last_z = z;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
 }
