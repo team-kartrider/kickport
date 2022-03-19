@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,6 +25,8 @@ import com.example.kickport.mysql.ValidateRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.regex.Pattern;
+
 public class Register extends AppCompatActivity {
 
     private EditText join_name, join_email, join_password, join_pwck, join_phone, join_guardphone;
@@ -33,6 +36,10 @@ public class Register extends AppCompatActivity {
     private boolean validate = false;
     private Button check_email, join_end;
 
+    private int ck = 0; // 아이디 형식 확인
+    private int check = 0; // 비번 중복 테스트 확인
+
+    private Pattern pattern = Patterns.EMAIL_ADDRESS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,17 +54,17 @@ public class Register extends AppCompatActivity {
         join_pwckmsg = findViewById(R.id.join_check_password);
 
         join_year = findViewById(R.id.join_year);
-        ArrayAdapter yearAdapter = ArrayAdapter.createFromResource(this, R.array.test, android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter yearAdapter = ArrayAdapter.createFromResource(this, R.array.year, android.R.layout.simple_spinner_dropdown_item);
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         join_year.setAdapter(yearAdapter);
 
         join_month = findViewById(R.id.join_month);
-        ArrayAdapter monthAdapter = ArrayAdapter.createFromResource(this, R.array.test, android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter monthAdapter = ArrayAdapter.createFromResource(this, R.array.month, android.R.layout.simple_spinner_dropdown_item);
         monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         join_month.setAdapter(monthAdapter);
 
         join_day = findViewById(R.id.join_day);
-        ArrayAdapter dayAdapter = ArrayAdapter.createFromResource(this, R.array.test, android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter dayAdapter = ArrayAdapter.createFromResource(this, R.array.day, android.R.layout.simple_spinner_dropdown_item);
         dayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         join_day.setAdapter(dayAdapter);
 
@@ -74,7 +81,7 @@ public class Register extends AppCompatActivity {
         join_guardphone = findViewById(R.id.join_guardian_phone);
 
         join_insurance = findViewById(R.id.join_insurance);
-        ArrayAdapter insuranceAdapter = ArrayAdapter.createFromResource(this, R.array.test, android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter insuranceAdapter = ArrayAdapter.createFromResource(this, R.array.insurance, android.R.layout.simple_spinner_dropdown_item);
         insuranceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         join_insurance.setAdapter(insuranceAdapter);
 
@@ -90,16 +97,32 @@ public class Register extends AppCompatActivity {
             public void onClick(View view) {
 
                 String UserEmail = join_email.getText().toString();
-                if (validate) {
-                    return; //검증 완료
+
+
+                if(pattern.matcher(UserEmail).matches()){ // 이메일 정규식 맞는 경우
+                    ck = 1;
+                    if (validate) {
+                        return; //검증 완료
+                    }
                 }
 
-                if (UserEmail.equals("")) {
+                else if(ck == 0){ // 이메일 정규식 틀린 경우
+
+                    if (UserEmail.equals("")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
+                        dialog = builder.setMessage("아이디를 입력하세요.").setPositiveButton("확인", null).create();
+                        dialog.show();
+                        return;
+                    }
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
-                    dialog = builder.setMessage("아이디를 입력하세요.").setPositiveButton("확인", null).create();
+                    dialog = builder.setMessage("아이디 형식을 확인하세요.").setPositiveButton("확인", null).create();
                     dialog.show();
+                    ck = 0;
                     return;
+
                 }
+
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
@@ -119,6 +142,7 @@ public class Register extends AppCompatActivity {
                             else {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
                                 dialog = builder.setMessage("이미 존재하는 아이디입니다.").setNegativeButton("확인", null).create();
+                                ck = 0;
                                 dialog.show();
                             }
                         } catch (JSONException e) {
@@ -169,16 +193,17 @@ public class Register extends AppCompatActivity {
                     public void onResponse(String response) {
 
                         try {
-                            JSONObject jsonObject = new JSONObject( response );
-                            boolean success = jsonObject.getBoolean( "success" );
 
-                            //회원가입 성공시
+                            //회원가입 성공시 -> 비번안같아도 db에 계속들어감ㅠㅠ
                             if(UserPwd.equals(PassCk)) {
+                                JSONObject jsonObject = new JSONObject( response );
+                                boolean success = jsonObject.getBoolean( "success" );
                                 if (success) {
 
                                     Toast.makeText(getApplicationContext(), String.format("%s님 가입을 환영합니다.", UserName), Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(Register.this, Login.class);
                                     startActivity(intent);
+                                    finish();
 
                                     //회원가입 실패시
                                 } else {
@@ -189,20 +214,23 @@ public class Register extends AppCompatActivity {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
                                 dialog = builder.setMessage("비밀번호가 동일하지 않습니다.").setNegativeButton("확인", null).create();
                                 dialog.show();
-                                return;
+                                check = 1; // 비번 아직 동일하지 않은 상태
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
 
+
                     }
+
                 };
 
                 //서버로 Volley를 이용해서 요청
-                RegisterRequest registerRequest = new RegisterRequest( UserName, UserEmail, UserPwd, UserYear, UserMonth, UserDay, UserPhone, UserGuardPhone, UserInsurance, responseListener);
-                RequestQueue queue = Volley.newRequestQueue( Register.this );
-                queue.add( registerRequest );
+                RegisterRequest registerRequest = new RegisterRequest(UserName, UserEmail, UserPwd, UserYear, UserMonth, UserDay, UserPhone, UserGuardPhone, UserInsurance, responseListener);
+                RequestQueue queue = Volley.newRequestQueue(Register.this);
+                queue.add(registerRequest);
+
 
             }
         });

@@ -13,11 +13,14 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class GpsTracker extends Service implements LocationListener {
@@ -30,6 +33,8 @@ public class GpsTracker extends Service implements LocationListener {
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1;
     protected LocationManager locationManager;
 
+    private Location mLastlocation = null;
+    private double getSpeed, calSpeed, speed;
 
     public GpsTracker(Context context) {
         this.mContext = context;
@@ -128,11 +133,39 @@ public class GpsTracker extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location)
     {
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        double deltaTime = 0;
+
+        // getSpeed() 함수를 이용하여 속도 계산(m/s -> km/h)
+        getSpeed = Double.parseDouble(String.format("%.3f", location.getSpeed() * 3.6));
+
+        // 위치 변경이 두번째로 변경된 경우 계산에 의해 속도 계산
+        if(mLastlocation != null){
+            deltaTime = (location.getTime() - mLastlocation.getTime());
+            // 속도 계산(시간=ms, 거리=m -> km/h)
+            speed = (mLastlocation.distanceTo(location) / deltaTime) * 3600;
+            calSpeed = Double.parseDouble(String.format("%.3f", speed));
+        }
+        // 현재위치를 지난 위치로 변경
+        mLastlocation = location;
+
+    }
+
+    public double getSpeed(){
+        getSpeed = Double.parseDouble(String.format("%.3f", location.getSpeed()));
+        return getSpeed;
+    }
+
+    public double getCalSpeed(){
+        calSpeed = Double.parseDouble(String.format("%.3f", speed));
+        return calSpeed;
     }
 
     @Override
     public void onProviderDisabled(String provider)
     {
+
     }
 
     @Override
