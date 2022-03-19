@@ -24,7 +24,6 @@
             android:foregroundServiceType="location"
             tools:ignore="Instantiatable" />
 
-
         <activity
             android:name=".Register"
             android:exported="false" />
