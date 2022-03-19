@@ -29,9 +29,6 @@
             android:name=".Login"
             android:exported="false" />
         <activity
-            android:name=".NaverLogin"
-            android:exported="false" />
-        <activity
             android:name=".Register"
             android:exported="false" />
         <activity
