@@ -4,6 +4,10 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -39,7 +43,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     private GpsTracker gpsTracker;
 
@@ -67,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private NavigationView nav;
     private Location mLastlocation = null;
     private double speed, calSpeed, getSpeed;
+
 
 
     @Override
@@ -100,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //액션바 변경하기(들어갈 수 있는 타입 : Toolbar type
         setSupportActionBar(toolbar);
+
 
         // 주행 시작 버튼 누른 경우 - 현 위치 및 타이머 잡기로~
         btn_move = (Button) findViewById(R.id.start);
@@ -404,6 +410,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setZoomControlEnabled(true);
         uiSettings.setLocationButtonEnabled(true);
     }
+
 
 
 }

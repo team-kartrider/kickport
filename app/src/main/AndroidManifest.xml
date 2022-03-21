@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kickport"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".Login"
+            android:exported="false" />
 
         <service
             android:name=".GpsTracker"
@@ -24,7 +27,6 @@
             android:foregroundServiceType="location"
             tools:ignore="Instantiatable" />
 
-
         <activity
             android:name=".Register"
             android:exported="false" />
@@ -32,7 +34,7 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".Login"
+            android:name=".Sensor"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
