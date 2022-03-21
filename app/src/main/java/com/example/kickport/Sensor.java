@@ -1,12 +1,13 @@
 package com.example.kickport;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class Sensor extends AppCompatActivity implements SensorEventListener {
 
@@ -70,6 +71,10 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             tly.setText("y: " + y_str);
             tlz.setText("z: " + z_str);
 
+            Log.v("linear acceleration sensor x", x_str);
+            Log.v("linear acceleration sensor y", y_str);
+            Log.v("linear acceleration sensor z", z_str);
+
             long curTime = System.currentTimeMillis(); // 현재시간
 
 
@@ -97,6 +102,11 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             tx.setText("x: " + x_str);
             ty.setText("y: " + y_str);
             tz.setText("z: " + z_str);
+
+            Log.v("accelerometer sensor x", x_str);
+            Log.v("accelerometer sensor y", y_str);
+            Log.v("accelerometer sensor z", z_str);
+
 
             long curTime = System.currentTimeMillis(); // 현재시간
 
