@@ -31,6 +31,11 @@
             android:layout_height="wrap_content"
             android:id="@+id/z"
             android:text="z"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/impulse"
+            android:text="impulse"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -52,6 +57,11 @@
             android:layout_height="wrap_content"
             android:id="@+id/lz"
             android:text="z"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/limpulse"
+            android:text="impulse"/>
 
 
     </LinearLayout>
