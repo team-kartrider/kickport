@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 public class Sensor extends AppCompatActivity implements SensorEventListener {
@@ -50,11 +51,13 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         final TextView tlx = findViewById(R.id.lx);
         final TextView tly = findViewById(R.id.ly);
         final TextView tlz = findViewById(R.id.lz);
+        final TextView tlImpulse = findViewById(R.id.limpulse);
 
         // 중력 포함
         final TextView tx = findViewById(R.id.x);
         final TextView ty = findViewById(R.id.y);
         final TextView tz = findViewById(R.id.z);
+        final TextView tImpulse = findViewById(R.id.impulse);
 
         // 중력 제외인 경우
         if(mySensor.getType() == android.hardware.Sensor.TYPE_LINEAR_ACCELERATION){
@@ -75,7 +78,17 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
+                // System.currentTimeMillis()의 단위가 ms 이므로 m/(s^2) 단위에 맞게 second로 변경
+                long diffTime = (curTime - lastUpdate)/1000;
                 lastUpdate = curTime;
+
+//                가속도 값 업데이트와 동시에 시간당 충격량을 계산. 충격량 = F*t = (a*m)*t = (m/(s^2))*kg*(ms/1000), 질량 m은 임의로 1로 설정
+                double impulse = (double)z*1*diffTime;
+                String impulse_str = Double.toString(impulse);
+                tlImpulse.setText("impulse : " + impulse_str);
+
+                Log.v("linear acceleration impulse", impulse_str);
+
 
                 //갱신
                 last_x = x;
@@ -103,7 +116,16 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
+                //System.currentTimeMillis()의 단위가 ms 이므로 m/(s^2) 단위에 맞게 second로 변경
+                long diffTime = (curTime - lastUpdate)/1000;
                 lastUpdate = curTime;
+
+                //가속도 값 업데이트와 동시에 시간당 충격량을 계산. 충격량 = F*t = (a*m)*t = (m/(s^2))*kg*(ms/1000), 질량 m은 임의로 1로 설정
+                double impulse = (double)z*1*diffTime;
+                String impulse_str = Double.toString(impulse);
+                tlImpulse.setText("impulse : " + impulse_str);
+
+                Log.v("linear acceleration impulse", impulse_str);
 
                 //갱신
                 last_x = x;
