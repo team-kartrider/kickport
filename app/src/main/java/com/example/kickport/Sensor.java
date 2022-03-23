@@ -21,6 +21,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
     private long lastUpdate = 0;
     private float last_x, last_y, last_z;
+//    private double IMPULSE_THRESHOLD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +76,19 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             Log.v("linear acceleration sensor y", y_str);
             Log.v("linear acceleration sensor z", z_str);
 
-            long curTime = System.currentTimeMillis(); // 현재시간
+            long curTime = System.currentTimeMillis(); // 현재시간, ms
 
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
+//                System.currentTimeMillis()의 단위가 ms 이므로 m/(s^2) 단위에 맞게 second로 변경
+                long diffTime = (curTime - lastUpdate)/1000;
                 lastUpdate = curTime;
+
+//                가속도 값 업데이트와 동시에 시간당 충격량을 계산. 충격량 = F*t = (a*m)*t = (m/(s^2))*kg*(ms/1000), 질량 m은 임의로 1로 설정
+                double impulse = (double)z*1*diffTime;
+
+                Log.v("linear acceleration impulse", Double.toString(impulse));
 
                 //갱신
                 last_x = x;
@@ -113,7 +121,14 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
+//                System.currentTimeMillis()의 단위가 ms 이므로 m/(s^2) 단위에 맞게 second로 변경
+                long diffTime = (curTime - lastUpdate)/1000;
                 lastUpdate = curTime;
+
+//                가속도 값 업데이트와 동시에 시간당 충격량을 계산. 충격량 = F*t = (a*m)*t = (m/(s^2))*kg*(ms/1000), 질량 m은 임의로 1로 설정
+                double impulse = (double)z*1*diffTime;
+
+                Log.v("accelerometer impulse", Double.toString(impulse));
 
                 //갱신
                 last_x = x;
