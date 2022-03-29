@@ -19,8 +19,14 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
     private SensorManager sensorManager2;
     private android.hardware.Sensor senAccelerometer2;
 
+    // 센서이용-자이로 센서
+    private SensorManager sensorManager3;
+    private android.hardware.Sensor senGyroscope;
+
     private long lastUpdate = 0;
-    private float last_x, last_y, last_z;
+    private float last_tlx, last_tly, last_tlz;
+    private float last_lx, last_ly, last_lz;
+    private float last_gx, last_gy, last_gz;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +42,15 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         senAccelerometer2 = sensorManager2.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER);
         // 센서 종류 설정 - accelerometer sensor 이용(중력 포함)
 
+        sensorManager3 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senGyroscope = sensorManager3.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE);
+
 
 
 
         sensorManager1.registerListener( Sensor.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager2.registerListener( Sensor.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager3.registerListener( Sensor.this, senGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -59,41 +69,43 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         final TextView tz = findViewById(R.id.z);
         final TextView tImpulse = findViewById(R.id.impulse);
 
+        // 각속도
+        final TextView gx = findViewById(R.id.gx);
+        final TextView gy = findViewById(R.id.gy);
+        final TextView gz = findViewById(R.id.gz);
+        final TextView gImpulse = findViewById(R.id.gimpulse);
+
         // 중력 제외인 경우
         if(mySensor.getType() == android.hardware.Sensor.TYPE_LINEAR_ACCELERATION){
 
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
+            float impulse = (float)Math.sqrt( Math.pow(z-last_tlz, 2)
+                    + Math.pow(x-last_tlx, 2)
+                    + Math.pow(y-last_tly, 2));
 
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
+            String impulse_str = Float.toString(impulse);
             tlx.setText("x: " + x_str);
             tly.setText("y: " + y_str);
             tlz.setText("z: " + z_str);
+            tlImpulse.setText("impulse : " + impulse_str);
 
             long curTime = System.currentTimeMillis(); // 현재시간
 
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
-                // System.currentTimeMillis()의 단위가 ms 이므로 m/(s^2) 단위에 맞게 second로 변경
-                long diffTime = (curTime - lastUpdate)/1000;
+
                 lastUpdate = curTime;
 
-//                가속도 값 업데이트와 동시에 시간당 충격량을 계산. 충격량 = F*t = (a*m)*t = (m/(s^2))*kg*(ms/1000), 질량 m은 임의로 1로 설정
-                double impulse = (double)z*1*diffTime;
-                String impulse_str = Double.toString(impulse);
-                tlImpulse.setText("impulse : " + impulse_str);
-
-                Log.v("linear acceleration impulse", impulse_str);
-
-
                 //갱신
-                last_x = x;
-                last_y = y;
-                last_z = z;
+                last_tlx = x;
+                last_tly = y;
+                last_tlz = z;
             }
         }
 
@@ -103,36 +115,70 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
+            float impulse = (float)Math.sqrt( Math.pow(z-last_lz, 2)
+                    + Math.pow(x-last_lx, 2)
+                    + Math.pow(y-last_ly, 2));
 
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
+            String impulse_str = Double.toString(impulse);
             tx.setText("x: " + x_str);
             ty.setText("y: " + y_str);
             tz.setText("z: " + z_str);
+            tImpulse.setText("impulse : " + impulse_str);
 
             long curTime = System.currentTimeMillis(); // 현재시간
 
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
-                //System.currentTimeMillis()의 단위가 ms 이므로 m/(s^2) 단위에 맞게 second로 변경
-                long diffTime = (curTime - lastUpdate)/1000;
+
                 lastUpdate = curTime;
 
-                //가속도 값 업데이트와 동시에 시간당 충격량을 계산. 충격량 = F*t = (a*m)*t = (m/(s^2))*kg*(ms/1000), 질량 m은 임의로 1로 설정
-                double impulse = (double)z*1*diffTime;
-                String impulse_str = Double.toString(impulse);
-                tlImpulse.setText("impulse : " + impulse_str);
-
-                Log.v("linear acceleration impulse", impulse_str);
-
                 //갱신
-                last_x = x;
-                last_y = y;
-                last_z = z;
+                last_lx = x;
+                last_ly = y;
+                last_lz = z;
             }
         }
+
+        // 각속도 구하기
+        else if(mySensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE) {
+
+            float axisx = sensorEvent.values[0];
+            float axisy = sensorEvent.values[1];
+            float axisz = sensorEvent.values[2];
+            float impulse = (float) Math.sqrt(Math.pow(axisz - last_gz, 2)
+                    + Math.pow(axisx - last_gx, 2)
+                    + Math.pow(axisz - last_gy, 2));
+
+            String x_str = Float.toString(axisx);
+            String y_str = Float.toString(axisy);
+            String z_str = Float.toString(axisz);
+            String impulse_str = Float.toString(impulse);
+            gx.setText("x: " + x_str);
+            gy.setText("y: " + y_str);
+            gz.setText("z: " + z_str);
+            gImpulse.setText("impulse : " + impulse_str);
+
+            Log.v("gyroscope sensor x", x_str);
+            Log.v("gyroscope sensor y", y_str);
+            Log.v("gyroscope sensor z", z_str);
+            Log.v("gyroscope impulse", impulse_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간
+
+            if ((curTime - lastUpdate) > 100) {
+                lastUpdate = curTime;
+
+                //갱신
+                last_gx = axisx;
+                last_gy = axisy;
+                last_gz = axisz;
+            }
+        }
+
     }
 
     @Override
