@@ -63,6 +63,32 @@
             android:id="@+id/limpulse"
             android:text="impulse"/>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="각속도"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/gx"
+            android:text="gyrox"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/gy"
+            android:text="gyroy"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/gz"
+            android:text="gyroz"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/gimpulse"
+            android:text="gyroImpulse"/>
+
 
     </LinearLayout>
 
