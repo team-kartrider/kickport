@@ -28,6 +28,9 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
     private float last_lx, last_ly, last_lz;
     private float last_gx, last_gy, last_gz;
 
+    // 가장 큰 충격량
+    private float max_impulse = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +78,9 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         final TextView gz = findViewById(R.id.gz);
         final TextView gImpulse = findViewById(R.id.gimpulse);
 
+        // 가장 큰 충격량
+        final TextView maxImpulse = findViewById(R.id.maximpulse);
+
         // 중력 제외인 경우
         if(mySensor.getType() == android.hardware.Sensor.TYPE_LINEAR_ACCELERATION){
 
@@ -84,6 +90,10 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float impulse = (float)Math.sqrt( Math.pow(z-last_tlz, 2)
                     + Math.pow(x-last_tlx, 2)
                     + Math.pow(y-last_tly, 2));
+
+            if(max_impulse < impulse){
+                max_impulse = impulse;
+            }
 
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
@@ -119,6 +129,10 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                     + Math.pow(x-last_lx, 2)
                     + Math.pow(y-last_ly, 2));
 
+            if(max_impulse < impulse){
+                max_impulse = impulse;
+            }
+
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
@@ -151,7 +165,11 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float axisz = sensorEvent.values[2];
             float impulse = (float) Math.sqrt(Math.pow(axisz - last_gz, 2)
                     + Math.pow(axisx - last_gx, 2)
-                    + Math.pow(axisz - last_gy, 2));
+                    + Math.pow(axisy - last_gy, 2));
+
+            if(max_impulse < impulse){
+                max_impulse = impulse;
+            }
 
             String x_str = Float.toString(axisx);
             String y_str = Float.toString(axisy);
@@ -178,6 +196,8 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                 last_gz = axisz;
             }
         }
+
+        maxImpulse.setText("maxImpulse: " + max_impulse);
 
     }
 

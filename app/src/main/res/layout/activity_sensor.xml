@@ -89,6 +89,17 @@
             android:id="@+id/gimpulse"
             android:text="impulse"/>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="가장 큰 충격량"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/maximpulse"
+            android:text="maxImpulse"/>
+
 
     </LinearLayout>
 
