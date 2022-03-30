@@ -5,6 +5,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,8 +29,17 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
     private float last_tlx, last_tly, last_tlz;
     private float last_lx, last_ly, last_lz;
     private float last_gx, last_gy, last_gz;
-//    private double IMPULSE_THRESHOLD;
+    private double IMPULSE_THRESHOLD = 40;
+    private double FALLDOWN_THRESHOLD = 10;
     private int impulseCounter = 0;
+    private int falldownCounter = 0;
+
+    private Button resetTrigger;
+
+    // 충격 횟수 세기
+    TextView tImpulseCounter;
+    // 넘어짐 횟수 세기
+    TextView tfalldownCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +62,21 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         sensorManager1.registerListener( Sensor.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager2.registerListener( Sensor.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager3.registerListener( Sensor.this, senGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+
+        resetTrigger = findViewById(R.id.resetButton);
+        tImpulseCounter = findViewById(R.id.impulseCnt);
+        tfalldownCounter = findViewById(R.id.falldownCnt);
+
+        resetTrigger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 모든 카운터 초기화
+                impulseCounter = 0;
+                falldownCounter = 0;
+                tImpulseCounter.setText(String.valueOf(impulseCounter));
+                tfalldownCounter.setText(String.valueOf(falldownCounter));
+            }
+        });
     }
 
     @Override
@@ -62,9 +88,6 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         final TextView tly = findViewById(R.id.ly);
         final TextView tlz = findViewById(R.id.lz);
         final TextView tlImpulse = findViewById(R.id.limpulse);
-
-        // 충격 횟수 세기
-        final TextView tImpulseCounter = findViewById(R.id.impulseCnt);
 
         // 중력 포함
         final TextView tx = findViewById(R.id.x);
@@ -88,7 +111,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                                             + Math.pow(x-last_tlx, 2)
                                             + Math.pow(y-last_tly, 2));
 
-            if (impulse > 30){
+            if (impulse > IMPULSE_THRESHOLD){
                 impulseCounter++;
             }
 
@@ -169,19 +192,26 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                                             + Math.pow(axisx-last_gx, 2)
                                             + Math.pow(axisz-last_gy, 2));
 
+            if (impulse > FALLDOWN_THRESHOLD){
+                falldownCounter++;
+            }
+
             String x_str = Float.toString(axisx);
             String y_str = Float.toString(axisy);
             String z_str = Float.toString(axisz);
             String impulse_str = Float.toString(impulse);
+            String counter_str = Integer.toString(falldownCounter);
             gx.setText("x: " + x_str);
             gy.setText("y: " + y_str);
             gz.setText("z: " + z_str);
-            gImpulse.setText("impulse : "+ impulse_str);
+            gImpulse.setText("impulse : " + impulse_str);
+            tfalldownCounter.setText("falldown counter : " + counter_str);
 
             Log.v("gyroscope sensor x", x_str);
             Log.v("gyroscope sensor y", y_str);
             Log.v("gyroscope sensor z", z_str);
             Log.v("gyroscope impulse", impulse_str);
+            Log.v("gyroscope falldown counter", counter_str);
 
             long curTime = System.currentTimeMillis(); // 현재시간
 
