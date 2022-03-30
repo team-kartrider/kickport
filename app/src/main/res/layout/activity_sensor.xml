@@ -36,6 +36,11 @@
             android:layout_height="wrap_content"
             android:id="@+id/impulse"
             android:text="impulse"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/impulseCnt"
+            android:text="how many impulses"/>
 
         <TextView
             android:layout_width="match_parent"

@@ -28,6 +28,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
     private float last_lx, last_ly, last_lz;
     private float last_gx, last_gy, last_gz;
 //    private double IMPULSE_THRESHOLD;
+    private int impulseCounter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +63,9 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         final TextView tlz = findViewById(R.id.lz);
         final TextView tlImpulse = findViewById(R.id.limpulse);
 
+        // 충격 횟수 세기
+        final TextView tImpulseCounter = findViewById(R.id.impulseCnt);
+
         // 중력 포함
         final TextView tx = findViewById(R.id.x);
         final TextView ty = findViewById(R.id.y);
@@ -84,19 +88,26 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                                             + Math.pow(x-last_tlx, 2)
                                             + Math.pow(y-last_tly, 2));
 
+            if (impulse > 30){
+                impulseCounter++;
+            }
+
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
             String impulse_str = Float.toString(impulse);
+            String counter_str = Integer.toString(impulseCounter);
             tlx.setText("x: " + x_str);
             tly.setText("y: " + y_str);
             tlz.setText("z: " + z_str);
             tlImpulse.setText("impulse : " + impulse_str);
+            tImpulseCounter.setText("impulse counter : " + counter_str);
 
             Log.v("linear acceleration sensor x", x_str);
             Log.v("linear acceleration sensor y", y_str);
             Log.v("linear acceleration sensor z", z_str);
             Log.v("linear acceleration impulse", impulse_str);
+            Log.v("linear acceleration impulse counter", counter_str);
 
             long curTime = System.currentTimeMillis(); // 현재시간, ms
 
