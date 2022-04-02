@@ -245,8 +245,8 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                     + Math.pow(axisx - last_gx, 2)
                     + Math.pow(axisy - last_gy, 2));
 
-            if(max_impulse < impulse){
-                max_impulse = impulse;
+            if(impulse > FALLDOWN_THRESHOLD){
+                falldownCounter++;
             }
 
             String x_str = Float.toString(axisx);
@@ -274,8 +274,6 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                 last_gz = axisz;
             }
         }
-
-        maxImpulse.setText("maxImpulse: " + max_impulse);
 
     }
 
