@@ -1,13 +1,16 @@
 package com.example.kickport;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class Sensor extends AppCompatActivity implements SensorEventListener {
 
@@ -28,8 +31,17 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
     private float last_lx, last_ly, last_lz;
     private float last_gx, last_gy, last_gz;
 
-    // 가장 큰 충격량
-    private float max_impulse = 0;
+    private double IMPULSE_THRESHOLD = 40;
+    private double FALLDOWN_THRESHOLD = 10;
+    private int impulseCounter = 0;
+    private int falldownCounter = 0;
+
+    private Button resetTrigger;
+
+    // 충격 횟수 세기
+    TextView tImpulseCounter;
+    // 넘어짐 횟수 세기
+    TextView tfalldownCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +60,25 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         sensorManager3 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
         senGyroscope = sensorManager3.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE);
 
-
-
-
         sensorManager1.registerListener( Sensor.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager2.registerListener( Sensor.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager3.registerListener( Sensor.this, senGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+
+        resetTrigger = findViewById(R.id.resetButton);
+        tImpulseCounter = findViewById(R.id.impulseCnt);
+        tfalldownCounter = findViewById(R.id.falldownCnt);
+
+        resetTrigger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 모든 카운터 초기화
+                impulseCounter = 0;
+                falldownCounter = 0;
+                tImpulseCounter.setText(String.valueOf(impulseCounter));
+                tfalldownCounter.setText(String.valueOf(falldownCounter));
+            }
+        });
+
     }
 
     @Override
@@ -78,9 +103,6 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         final TextView gz = findViewById(R.id.gz);
         final TextView gImpulse = findViewById(R.id.gimpulse);
 
-        // 가장 큰 충격량
-        final TextView maxImpulse = findViewById(R.id.maximpulse);
-
         // 중력 제외인 경우
         if(mySensor.getType() == android.hardware.Sensor.TYPE_LINEAR_ACCELERATION){
 
@@ -88,24 +110,35 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
             float impulse = (float)Math.sqrt( Math.pow(z-last_tlz, 2)
-                    + Math.pow(x-last_tlx, 2)
-                    + Math.pow(y-last_tly, 2));
+                                            + Math.pow(x-last_tlx, 2)
+                                            + Math.pow(y-last_tly, 2));
 
-            if(max_impulse < impulse){
-                max_impulse = impulse;
+            if (impulse > IMPULSE_THRESHOLD){
+                impulseCounter++;
+
             }
 
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
             String impulse_str = Float.toString(impulse);
+
+            String counter_str = Integer.toString(impulseCounter);
+
             tlx.setText("x: " + x_str);
             tly.setText("y: " + y_str);
             tlz.setText("z: " + z_str);
             tlImpulse.setText("impulse : " + impulse_str);
 
-            long curTime = System.currentTimeMillis(); // 현재시간
+            tImpulseCounter.setText("impulse counter : " + counter_str);
 
+            Log.v("linear acceleration sensor x", x_str);
+            Log.v("linear acceleration sensor y", y_str);
+            Log.v("linear acceleration sensor z", z_str);
+            Log.v("linear acceleration impulse", impulse_str);
+            Log.v("linear acceleration impulse counter", counter_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간, ms
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
@@ -126,12 +159,8 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
             float impulse = (float)Math.sqrt( Math.pow(z-last_lz, 2)
-                    + Math.pow(x-last_lx, 2)
-                    + Math.pow(y-last_ly, 2));
-
-            if(max_impulse < impulse){
-                max_impulse = impulse;
-            }
+                                            + Math.pow(x-last_lx, 2)
+                                            + Math.pow(y-last_ly, 2));
 
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
@@ -142,8 +171,13 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             tz.setText("z: " + z_str);
             tImpulse.setText("impulse : " + impulse_str);
 
-            long curTime = System.currentTimeMillis(); // 현재시간
+            Log.v("accelerometer sensor x", x_str);
+            Log.v("accelerometer sensor y", y_str);
+            Log.v("accelerometer sensor z", z_str);
+            Log.v("accelerometer impulse", impulse_str);
 
+
+            long curTime = System.currentTimeMillis(); // 현재시간
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
@@ -154,6 +188,50 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                 last_lx = x;
                 last_ly = y;
                 last_lz = z;
+
+            }
+        }
+        // 각속도 구하기
+        else if(mySensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE){
+
+            float axisx = sensorEvent.values[0];
+            float axisy = sensorEvent.values[1];
+            float axisz = sensorEvent.values[2];
+            float impulse = (float)Math.sqrt( Math.pow(axisz-last_gz, 2)
+                                            + Math.pow(axisx-last_gx, 2)
+                                            + Math.pow(axisz-last_gy, 2));
+
+            if (impulse > FALLDOWN_THRESHOLD){
+                falldownCounter++;
+            }
+
+            String x_str = Float.toString(axisx);
+            String y_str = Float.toString(axisy);
+            String z_str = Float.toString(axisz);
+            String impulse_str = Float.toString(impulse);
+            String counter_str = Integer.toString(falldownCounter);
+            gx.setText("x: " + x_str);
+            gy.setText("y: " + y_str);
+            gz.setText("z: " + z_str);
+            gImpulse.setText("impulse : " + impulse_str);
+            tfalldownCounter.setText("falldown counter : " + counter_str);
+
+            Log.v("gyroscope sensor x", x_str);
+            Log.v("gyroscope sensor y", y_str);
+            Log.v("gyroscope sensor z", z_str);
+            Log.v("gyroscope impulse", impulse_str);
+            Log.v("gyroscope falldown counter", counter_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간
+
+            if((curTime - lastUpdate) > 100) {
+                lastUpdate = curTime;
+
+                //갱신
+                last_gx = axisx;
+                last_gy = axisy;
+                last_gz = axisz;
+
             }
         }
 

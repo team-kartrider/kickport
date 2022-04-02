@@ -36,6 +36,11 @@
             android:layout_height="wrap_content"
             android:id="@+id/impulse"
             android:text="impulse"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/impulseCnt"
+            android:text="how many impulses"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -72,33 +77,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/gx"
-            android:text="x"/>
+            android:text="gyrox"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/gy"
-            android:text="y"/>
+            android:text="gyroy"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/gz"
-            android:text="z"/>
+            android:text="gyroz"/>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/gimpulse"
-            android:text="impulse"/>
-
+            android:text="gyroImpulse"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="가장 큰 충격량"/>
+            android:id="@+id/falldownCnt"
+            android:text="how many falling"/>
 
-        <TextView
+        <Button
+            android:id="@+id/resetButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/maximpulse"
-            android:text="maxImpulse"/>
+            android:text="Reset Counters" />
 
 
     </LinearLayout>

@@ -23,14 +23,14 @@
             android:layout_marginTop="20dp">
 
             <Button
-                android:id="@+id/login_back"
+                android:id="@+id/join_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="back" />
 
             <Button
-                android:id="@+id/login_menu"
+                android:id="@+id/join_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
