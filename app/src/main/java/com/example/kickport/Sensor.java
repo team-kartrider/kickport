@@ -199,7 +199,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float axisz = sensorEvent.values[2];
             float impulse = (float)Math.sqrt( Math.pow(axisz-last_gz, 2)
                                             + Math.pow(axisx-last_gx, 2)
-                                            + Math.pow(axisz-last_gy, 2));
+                                            + Math.pow(axisy-last_gy, 2));
 
             if (impulse > FALLDOWN_THRESHOLD){
                 falldownCounter++;
