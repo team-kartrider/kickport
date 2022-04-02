@@ -181,6 +181,7 @@ public class Register extends AppCompatActivity {
                 }
 
                 //한 칸이라도 입력 안했을 경우
+
                 if (UserEmail.equals("") || UserPwd.equals("") || UserName.equals("") || UserYear.equals("") || UserMonth.equals("") || UserDay.equals("") || UserPhone.equals("") || UserGuardPhone.equals("")|| UserInsurance.equals("")) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
                     dialog = builder.setMessage("모두 입력해주세요.").setNegativeButton("확인", null).create();
@@ -230,10 +231,7 @@ public class Register extends AppCompatActivity {
                 RegisterRequest registerRequest = new RegisterRequest(UserName, UserEmail, UserPwd, UserYear, UserMonth, UserDay, UserPhone, UserGuardPhone, UserInsurance, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(Register.this);
                 queue.add(registerRequest);
-
-
             }
         });
     }
 }
-

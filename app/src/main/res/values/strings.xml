@@ -9,4 +9,10 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+
+<!--    naver login-->
+<!--    <string name="naver_client_id">4dv6z2cwt3</string>-->
+<!--    <string name="naver_client_secret">lx69TBHD8pZzIG2jgNRALLrNkGnKeSLuRPAq2xth</string>-->
+<!--    <string name="naver_client_name">kickport</string>-->
+
 </resources>

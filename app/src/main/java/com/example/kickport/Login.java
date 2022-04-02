@@ -1,13 +1,13 @@
 package com.example.kickport;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -65,6 +65,7 @@ public class Login extends AppCompatActivity {
                                 Toast.makeText( getApplicationContext(), String.format("%s님 환영합니다.", UserName), Toast.LENGTH_SHORT ).show();
                                 Intent intent = new Intent( Login.this, MainActivity.class );
 
+
                                 intent.putExtra( "user_id", UserEmail );
                                 intent.putExtra( "user_password", UserPwd );
                                 intent.putExtra( "user_name", UserName );
@@ -88,6 +89,5 @@ public class Login extends AppCompatActivity {
 
             }
         });
-
     }
 }
