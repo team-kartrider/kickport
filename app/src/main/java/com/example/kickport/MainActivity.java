@@ -297,6 +297,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Intent callGPSSettingIntent
                         = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivityForResult(callGPSSettingIntent, GPS_ENABLE_REQUEST_CODE);
+
+                ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, id);
             }
         });
         builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
@@ -365,15 +367,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
                 double deltaTime = 0;
 
-                // getSpeed() 함수를 이용하여 속도 계산
-                getSpeed = Double.parseDouble(String.format("%.3f", location.getSpeed()));
-
+                // getSpeed() 함수를 이용하여 속도 계산(m/s -> km/h)
+                getSpeed = Double.parseDouble(String.format("%.3f", location.getSpeed() * 3.6));
 
                 // 위치 변경이 두번째로 변경된 경우 계산에 의해 속도 계산
                 if(mLastlocation != null){
-                    deltaTime = (location.getTime() - mLastlocation.getTime()) / 1000.0;
-                    // 속도 계산
-                    speed = mLastlocation.distanceTo(location) / deltaTime;
+                    deltaTime = (location.getTime() - mLastlocation.getTime());
+                    // 속도 계산(시간=ms, 거리=m -> km/h)
+                    speed = (mLastlocation.distanceTo(location) / deltaTime) * 3600;
                     calSpeed = Double.parseDouble(String.format("%.3f", speed));
                 }
                 // 현재위치를 지난 위치로 변경

@@ -5,6 +5,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
     private float last_tlx, last_tly, last_tlz;
     private float last_lx, last_ly, last_lz;
     private float last_gx, last_gy, last_gz;
+
     private double IMPULSE_THRESHOLD = 40;
     private double FALLDOWN_THRESHOLD = 10;
     private int impulseCounter = 0;
@@ -58,7 +60,6 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
         sensorManager3 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
         senGyroscope = sensorManager3.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE);
 
-
         sensorManager1.registerListener( Sensor.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager2.registerListener( Sensor.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager3.registerListener( Sensor.this, senGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
@@ -77,6 +78,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                 tfalldownCounter.setText(String.valueOf(falldownCounter));
             }
         });
+
     }
 
     @Override
@@ -113,17 +115,21 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
             if (impulse > IMPULSE_THRESHOLD){
                 impulseCounter++;
+
             }
 
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
             String impulse_str = Float.toString(impulse);
+
             String counter_str = Integer.toString(impulseCounter);
+
             tlx.setText("x: " + x_str);
             tly.setText("y: " + y_str);
             tlz.setText("z: " + z_str);
             tlImpulse.setText("impulse : " + impulse_str);
+
             tImpulseCounter.setText("impulse counter : " + counter_str);
 
             Log.v("linear acceleration sensor x", x_str);
@@ -136,6 +142,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
+
                 lastUpdate = curTime;
 
                 //갱신
@@ -174,12 +181,14 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
+
                 lastUpdate = curTime;
 
                 //갱신
                 last_lx = x;
                 last_ly = y;
                 last_lz = z;
+
             }
         }
         // 각속도 구하기
@@ -222,8 +231,52 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                 last_gx = axisx;
                 last_gy = axisy;
                 last_gz = axisz;
+
             }
         }
+
+        // 각속도 구하기
+        else if(mySensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE) {
+
+            float axisx = sensorEvent.values[0];
+            float axisy = sensorEvent.values[1];
+            float axisz = sensorEvent.values[2];
+            float impulse = (float) Math.sqrt(Math.pow(axisz - last_gz, 2)
+                    + Math.pow(axisx - last_gx, 2)
+                    + Math.pow(axisy - last_gy, 2));
+
+            if(max_impulse < impulse){
+                max_impulse = impulse;
+            }
+
+            String x_str = Float.toString(axisx);
+            String y_str = Float.toString(axisy);
+            String z_str = Float.toString(axisz);
+            String impulse_str = Float.toString(impulse);
+            gx.setText("x: " + x_str);
+            gy.setText("y: " + y_str);
+            gz.setText("z: " + z_str);
+            gImpulse.setText("impulse : " + impulse_str);
+
+            Log.v("gyroscope sensor x", x_str);
+            Log.v("gyroscope sensor y", y_str);
+            Log.v("gyroscope sensor z", z_str);
+            Log.v("gyroscope impulse", impulse_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간
+
+            if ((curTime - lastUpdate) > 100) {
+                lastUpdate = curTime;
+
+                //갱신
+                last_gx = axisx;
+                last_gy = axisy;
+                last_gz = axisz;
+            }
+        }
+
+        maxImpulse.setText("maxImpulse: " + max_impulse);
+
     }
 
     @Override
