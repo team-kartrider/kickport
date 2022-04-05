@@ -27,8 +27,7 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        login_email = findViewById(R.id.login_email);
-        login_password = findViewById(R.id.login_password);
+        login_email = findViewById(R.id.login_email);        login_password = findViewById(R.id.login_password);
 
 
         //join버튼 클릭시 register페이지로 이동

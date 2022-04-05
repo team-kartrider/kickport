@@ -189,48 +189,51 @@ public class Register extends AppCompatActivity {
                     return;
                 }
 
-                Response.Listener<String> responseListener = new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
+                if(UserPwd.equals(PassCk)){ // 비번 같은 경우에만 db 들어가도록 설정
+                    Response.Listener<String> responseListener = new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
 
-                        try {
+                            try {
 
-                            //회원가입 성공시 -> 비번안같아도 db에 계속들어감ㅠㅠ
-                            if(UserPwd.equals(PassCk)) {
-                                JSONObject jsonObject = new JSONObject( response );
-                                boolean success = jsonObject.getBoolean( "success" );
-                                if (success) {
+                                //회원가입 성공시 -> 비번안같아도 db에 계속들어감ㅠㅠ
+                                if(UserPwd.equals(PassCk)) {
+                                    JSONObject jsonObject = new JSONObject( response );
+                                    boolean success = jsonObject.getBoolean( "success" );
+                                    if (success) {
 
-                                    Toast.makeText(getApplicationContext(), String.format("%s님 가입을 환영합니다.", UserName), Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(Register.this, Login.class);
-                                    startActivity(intent);
-                                    finish();
+                                        Toast.makeText(getApplicationContext(), String.format("%s님 가입을 환영합니다.", UserName), Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(Register.this, Login.class);
+                                        startActivity(intent);
+                                        finish();
 
-                                    //회원가입 실패시
+                                        //회원가입 실패시
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "회원가입에 실패하였습니다.", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
                                 } else {
-                                    Toast.makeText(getApplicationContext(), "회원가입에 실패하였습니다.", Toast.LENGTH_SHORT).show();
-                                    return;
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
+                                    dialog = builder.setMessage("비밀번호가 동일하지 않습니다.").setNegativeButton("확인", null).create();
+                                    dialog.show();
+                                    check = 1; // 비번 아직 동일하지 않은 상태
                                 }
-                            } else {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(Register.this);
-                                dialog = builder.setMessage("비밀번호가 동일하지 않습니다.").setNegativeButton("확인", null).create();
-                                dialog.show();
-                                check = 1; // 비번 아직 동일하지 않은 상태
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+
                         }
 
+                    };
 
-                    }
+                    //서버로 Volley를 이용해서 요청
+                    RegisterRequest registerRequest = new RegisterRequest(UserName, UserEmail, UserPwd, UserYear, UserMonth, UserDay, UserPhone, UserGuardPhone, UserInsurance, responseListener);
+                    RequestQueue queue = Volley.newRequestQueue(Register.this);
+                    queue.add(registerRequest);
+                }
 
-                };
-
-                //서버로 Volley를 이용해서 요청
-                RegisterRequest registerRequest = new RegisterRequest(UserName, UserEmail, UserPwd, UserYear, UserMonth, UserDay, UserPhone, UserGuardPhone, UserInsurance, responseListener);
-                RequestQueue queue = Volley.newRequestQueue(Register.this);
-                queue.add(registerRequest);
             }
         });
     }
