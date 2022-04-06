@@ -4,10 +4,6 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -61,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationSource locationSource;
 
     private Button btn_move;
+    private boolean isMove = false;
 
     private static final String TAG = "Main_Activity";
 
@@ -114,6 +111,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View v) {
 
                 naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+
+                if (isMove == false){
+                    btn_move.setText("주행 종료");
+                    isMove = true;
+                }else{
+                    btn_move.setText("주행 시작");
+                    isMove = false;
+                }
 
             }
         });
