@@ -30,6 +30,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
     private float last_tlx, last_tly, last_tlz;
     private float last_lx, last_ly, last_lz;
     private float last_gx, last_gy, last_gz;
+    public static float LAimpulse, Aimpulse, Gimpulse;
 
     private double IMPULSE_THRESHOLD = 40;
     private double FALLDOWN_THRESHOLD = 10;
@@ -59,6 +60,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
         sensorManager3 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
         senGyroscope = sensorManager3.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE);
+        // 센서 종류 설정 - gyroscope sensor 이용
 
         sensorManager1.registerListener( Sensor.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager2.registerListener( Sensor.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
@@ -109,11 +111,11 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
-            float impulse = (float)Math.sqrt( Math.pow(z-last_tlz, 2)
+            LAimpulse = (float)Math.sqrt( Math.pow(z-last_tlz, 2)
                                             + Math.pow(x-last_tlx, 2)
                                             + Math.pow(y-last_tly, 2));
 
-            if (impulse > IMPULSE_THRESHOLD){
+            if (LAimpulse > IMPULSE_THRESHOLD){
                 impulseCounter++;
 
             }
@@ -121,7 +123,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
-            String impulse_str = Float.toString(impulse);
+            String impulse_str = Float.toString(LAimpulse);
 
             String counter_str = Integer.toString(impulseCounter);
 
@@ -158,14 +160,14 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
-            float impulse = (float)Math.sqrt( Math.pow(z-last_lz, 2)
+            Aimpulse = (float)Math.sqrt( Math.pow(z-last_lz, 2)
                                             + Math.pow(x-last_lx, 2)
                                             + Math.pow(y-last_ly, 2));
 
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
-            String impulse_str = Double.toString(impulse);
+            String impulse_str = Double.toString(Aimpulse);
             tx.setText("x: " + x_str);
             ty.setText("y: " + y_str);
             tz.setText("z: " + z_str);
@@ -197,18 +199,18 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float axisx = sensorEvent.values[0];
             float axisy = sensorEvent.values[1];
             float axisz = sensorEvent.values[2];
-            float impulse = (float)Math.sqrt( Math.pow(axisz-last_gz, 2)
+            Gimpulse = (float)Math.sqrt( Math.pow(axisz-last_gz, 2)
                                             + Math.pow(axisx-last_gx, 2)
                                             + Math.pow(axisy-last_gy, 2));
 
-            if (impulse > FALLDOWN_THRESHOLD){
+            if (Gimpulse > FALLDOWN_THRESHOLD){
                 falldownCounter++;
             }
 
             String x_str = Float.toString(axisx);
             String y_str = Float.toString(axisy);
             String z_str = Float.toString(axisz);
-            String impulse_str = Float.toString(impulse);
+            String impulse_str = Float.toString(Gimpulse);
             String counter_str = Integer.toString(falldownCounter);
             gx.setText("x: " + x_str);
             gy.setText("y: " + y_str);
@@ -235,46 +237,18 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             }
         }
 
-        // 각속도 구하기
-        else if(mySensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE) {
+    }
 
-            float axisx = sensorEvent.values[0];
-            float axisy = sensorEvent.values[1];
-            float axisz = sensorEvent.values[2];
-            float impulse = (float) Math.sqrt(Math.pow(axisz - last_gz, 2)
-                    + Math.pow(axisx - last_gx, 2)
-                    + Math.pow(axisy - last_gy, 2));
+    public static float getAimpulse() {
+        return Aimpulse;
+    }
 
-            if(impulse > FALLDOWN_THRESHOLD){
-                falldownCounter++;
-            }
+    public static float getLAimpulse() {
+        return LAimpulse;
+    }
 
-            String x_str = Float.toString(axisx);
-            String y_str = Float.toString(axisy);
-            String z_str = Float.toString(axisz);
-            String impulse_str = Float.toString(impulse);
-            gx.setText("x: " + x_str);
-            gy.setText("y: " + y_str);
-            gz.setText("z: " + z_str);
-            gImpulse.setText("impulse : " + impulse_str);
-
-            Log.v("gyroscope sensor x", x_str);
-            Log.v("gyroscope sensor y", y_str);
-            Log.v("gyroscope sensor z", z_str);
-            Log.v("gyroscope impulse", impulse_str);
-
-            long curTime = System.currentTimeMillis(); // 현재시간
-
-            if ((curTime - lastUpdate) > 100) {
-                lastUpdate = curTime;
-
-                //갱신
-                last_gx = axisx;
-                last_gy = axisy;
-                last_gz = axisz;
-            }
-        }
-
+    public static float getGimpulse() {
+        return Gimpulse;
     }
 
     @Override

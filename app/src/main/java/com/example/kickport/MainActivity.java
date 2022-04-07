@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -42,6 +43,18 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     private GpsTracker gpsTracker;
+
+    // 센서이용-중력 제외
+    private SensorManager sensorManager1;
+    private android.hardware.Sensor senAccelerometer1;
+
+    // 센서이용-중력 포함
+    private SensorManager sensorManager2;
+    private android.hardware.Sensor senAccelerometer2;
+
+    // 센서이용-자이로 센서
+    private SensorManager sensorManager3;
+    private android.hardware.Sensor senGyroscope;
 
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
@@ -112,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
 
+                // 버튼 누를시 텍스트 변경
                 if (isMove == false){
                     btn_move.setText("주행 종료");
                     isMove = true;
@@ -404,9 +418,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String gs_str = Double.toString(getSpeed);
                 String cs_str = Double.toString(calSpeed);
 
-                tvGetSpeed.setText("구한 속도: " + gs_str);
-                tvCalSpeed.setText("함수 속도: " + cs_str);
+//                tvGetSpeed.setText("구한 속도: " + gs_str);
+//                tvCalSpeed.setText("함수 속도: " + cs_str);
 
+                // 센서 테스트용
+                tvGetSpeed.setText(Float.toString(Sensor.getLAimpulse()));
+                tvCalSpeed.setText(Float.toString(Sensor.getGimpulse()));
             }
         });
 
