@@ -3,6 +3,7 @@ package com.example.kickport;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.SensorManager;
 import android.location.Address;
@@ -161,11 +162,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     case R.id.menu_logout:
                         Intent intent = new Intent(MainActivity.this, Login.class);
 
-                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        SharedPreferences sharedPreferences = getSharedPreferences("loginInfo", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                        editor.clear();
+                        editor.commit();
+
+
+                        // intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                         startActivity(intent);
                         finish();
-                        Log.d(TAG, "onNavigationItemSelected: 확인1");
                         break;
 
                 }
