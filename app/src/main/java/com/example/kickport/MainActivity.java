@@ -1,13 +1,11 @@
 package com.example.kickport;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -61,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationSource locationSource;
 
     private Button btn_move;
+    private boolean isMove = false;
 
     private static final String TAG = "Main_Activity";
 
@@ -115,6 +114,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
 
+                if (isMove == false){
+                    btn_move.setText("주행 종료");
+                    isMove = true;
+                }else{
+                    btn_move.setText("주행 시작");
+                    isMove = false;
+                }
+
             }
         });
 
@@ -142,11 +149,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     case R.id.menu_logout:
                         Intent intent = new Intent(MainActivity.this, Login.class);
 
-                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        SharedPreferences sharedPreferences = getSharedPreferences("loginInfo", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+                        editor.clear();
+                        editor.commit();
+
+
+                        // intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
                         startActivity(intent);
                         finish();
-                        Log.d(TAG, "onNavigationItemSelected: 확인1");
                         break;
 
                 }
