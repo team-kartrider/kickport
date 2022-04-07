@@ -5,6 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -41,7 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
 
     private GpsTracker gpsTracker;
 
@@ -69,6 +72,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private FusedLocationSource locationSource;
+
+    private long lastUpdate = 0;
+    private float LAimpulse, Aimpulse, Gimpulse;
+    private float Gx, Gy, Gz, lastGx, lastGy, lastGz;
+    private float LAx, LAy, LAz, lastLAx, lastLAy, lastLAz;
+    private float Ax, Ay, Az, lastAx, lastAy, lastAz;
 
     private Button btn_move;
     private boolean isMove = false;
@@ -134,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     btn_move.setText("주행 시작");
                     isMove = false;
                 }
-
             }
         });
 
@@ -146,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 drawerLayout.openDrawer(Gravity.LEFT);
 
             }
-
         });
 
         nav.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -179,6 +186,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return false;
             }
         });
+
+        // 센서 종류 설정 - linear acceleration sensor 이용(중력 제외)
+        sensorManager1 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senAccelerometer1 = sensorManager1.getDefaultSensor(android.hardware.Sensor.TYPE_LINEAR_ACCELERATION);
+
+        // 센서 종류 설정 - accelerometer sensor 이용(중력 포함)
+        sensorManager2 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senAccelerometer2 = sensorManager2.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER);
+
+        // 센서 종류 설정 - gyroscope sensor 이용
+        sensorManager3 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senGyroscope = sensorManager3.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE);
+
+        // 센서리스너
+        sensorManager1.registerListener( MainActivity.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager2.registerListener( MainActivity.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager3.registerListener( MainActivity.this, senGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
 
@@ -425,12 +449,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String gs_str = Double.toString(getSpeed);
                 String cs_str = Double.toString(calSpeed);
 
-//                tvGetSpeed.setText("구한 속도: " + gs_str);
-//                tvCalSpeed.setText("함수 속도: " + cs_str);
+                tvGetSpeed.setText("구한 속도: " + gs_str);
+                tvCalSpeed.setText("함수 속도: " + cs_str);
 
-                // 센서 테스트용
-                tvGetSpeed.setText(Float.toString(Sensor.getLAimpulse()));
-                tvCalSpeed.setText(Float.toString(Sensor.getGimpulse()));
+
             }
         });
 
@@ -442,5 +464,74 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        android.hardware.Sensor mySensor = sensorEvent.sensor;
+        if(mySensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
+            LAx = sensorEvent.values[0];
+            LAy = sensorEvent.values[1];
+            LAz = sensorEvent.values[2];
+            LAimpulse = (float) Math.sqrt(Math.pow(LAx - lastLAx, 2)
+                                        + Math.pow(LAy - lastLAy, 2)
+                                        + Math.pow(LAz - lastLAz, 2));
 
+            long curTime = System.currentTimeMillis(); // 현재시간, ms
+            // 0.1초 간격으로 가속도값을 업데이트
+            if((curTime - lastUpdate) > 100) {
+
+                lastUpdate = curTime;
+
+                //갱신
+                lastLAx = LAx;
+                lastLAy = LAy;
+                lastLAz = LAz;
+            }
+        }
+        else if(mySensor.getType() == Sensor.TYPE_ACCELEROMETER){
+            Ax = sensorEvent.values[0];
+            Ay = sensorEvent.values[1];
+            Az = sensorEvent.values[2];
+            Aimpulse = (float) Math.sqrt(Math.pow(Ax - lastAx, 2)
+                                        + Math.pow(Ay - lastAy, 2)
+                                        + Math.pow(Az - lastAz, 2));
+
+            long curTime = System.currentTimeMillis(); // 현재시간, ms
+            // 0.1초 간격으로 가속도값을 업데이트
+            if((curTime - lastUpdate) > 100) {
+
+                lastUpdate = curTime;
+
+                //갱신
+                lastAx = Ax;
+                lastAy = Ay;
+                lastAz = Az;
+            }
+
+        }
+        else if(mySensor.getType() == Sensor.TYPE_GYROSCOPE){
+            Gx = sensorEvent.values[0];
+            Gy = sensorEvent.values[1];
+            Gz = sensorEvent.values[2];
+            Gimpulse = (float) Math.sqrt(Math.pow(Gx - lastGx, 2)
+                                        + Math.pow(Gy - lastGy, 2)
+                                        + Math.pow(Gz - lastGz, 2));
+
+            long curTime = System.currentTimeMillis(); // 현재시간, ms
+            // 0.1초 간격으로 가속도값을 업데이트
+            if((curTime - lastUpdate) > 100) {
+
+                lastUpdate = curTime;
+
+                //갱신
+                lastGx = Gx;
+                lastGy = Gy;
+                lastGz = Gz;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
 }

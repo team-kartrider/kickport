@@ -30,7 +30,6 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
     private float last_tlx, last_tly, last_tlz;
     private float last_lx, last_ly, last_lz;
     private float last_gx, last_gy, last_gz;
-    public static float LAimpulse, Aimpulse, Gimpulse;
 
     private double IMPULSE_THRESHOLD = 40;
     private double FALLDOWN_THRESHOLD = 10;
@@ -111,11 +110,11 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
-            LAimpulse = (float)Math.sqrt( Math.pow(z-last_tlz, 2)
+            float impulse = (float)Math.sqrt( Math.pow(z-last_tlz, 2)
                                             + Math.pow(x-last_tlx, 2)
                                             + Math.pow(y-last_tly, 2));
 
-            if (LAimpulse > IMPULSE_THRESHOLD){
+            if (impulse > IMPULSE_THRESHOLD){
                 impulseCounter++;
 
             }
@@ -123,7 +122,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
-            String impulse_str = Float.toString(LAimpulse);
+            String impulse_str = Float.toString(impulse);
 
             String counter_str = Integer.toString(impulseCounter);
 
@@ -160,14 +159,14 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float x = sensorEvent.values[0];
             float y = sensorEvent.values[1];
             float z = sensorEvent.values[2];
-            Aimpulse = (float)Math.sqrt( Math.pow(z-last_lz, 2)
+            float impulse = (float)Math.sqrt( Math.pow(z-last_lz, 2)
                                             + Math.pow(x-last_lx, 2)
                                             + Math.pow(y-last_ly, 2));
 
             String x_str = Float.toString(x);
             String y_str = Float.toString(y);
             String z_str = Float.toString(z);
-            String impulse_str = Double.toString(Aimpulse);
+            String impulse_str = Double.toString(impulse);
             tx.setText("x: " + x_str);
             ty.setText("y: " + y_str);
             tz.setText("z: " + z_str);
@@ -199,18 +198,18 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float axisx = sensorEvent.values[0];
             float axisy = sensorEvent.values[1];
             float axisz = sensorEvent.values[2];
-            Gimpulse = (float)Math.sqrt( Math.pow(axisz-last_gz, 2)
+            float impulse = (float)Math.sqrt( Math.pow(axisz-last_gz, 2)
                                             + Math.pow(axisx-last_gx, 2)
                                             + Math.pow(axisy-last_gy, 2));
 
-            if (Gimpulse > FALLDOWN_THRESHOLD){
+            if (impulse > FALLDOWN_THRESHOLD){
                 falldownCounter++;
             }
 
             String x_str = Float.toString(axisx);
             String y_str = Float.toString(axisy);
             String z_str = Float.toString(axisz);
-            String impulse_str = Float.toString(Gimpulse);
+            String impulse_str = Float.toString(impulse);
             String counter_str = Integer.toString(falldownCounter);
             gx.setText("x: " + x_str);
             gy.setText("y: " + y_str);
@@ -237,18 +236,6 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             }
         }
 
-    }
-
-    public static float getAimpulse() {
-        return Aimpulse;
-    }
-
-    public static float getLAimpulse() {
-        return LAimpulse;
-    }
-
-    public static float getGimpulse() {
-        return Gimpulse;
     }
 
     @Override
