@@ -59,6 +59,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
 
         sensorManager3 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
         senGyroscope = sensorManager3.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE);
+        // 센서 종류 설정 - gyroscope sensor 이용
 
         sensorManager1.registerListener( Sensor.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager2.registerListener( Sensor.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
@@ -199,7 +200,7 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
             float axisz = sensorEvent.values[2];
             float impulse = (float)Math.sqrt( Math.pow(axisz-last_gz, 2)
                                             + Math.pow(axisx-last_gx, 2)
-                                            + Math.pow(axisz-last_gy, 2));
+                                            + Math.pow(axisy-last_gy, 2));
 
             if (impulse > FALLDOWN_THRESHOLD){
                 falldownCounter++;
@@ -232,46 +233,6 @@ public class Sensor extends AppCompatActivity implements SensorEventListener {
                 last_gy = axisy;
                 last_gz = axisz;
 
-            }
-        }
-
-        // 각속도 구하기
-        else if(mySensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE) {
-
-            float axisx = sensorEvent.values[0];
-            float axisy = sensorEvent.values[1];
-            float axisz = sensorEvent.values[2];
-            float impulse = (float) Math.sqrt(Math.pow(axisz - last_gz, 2)
-                    + Math.pow(axisx - last_gx, 2)
-                    + Math.pow(axisy - last_gy, 2));
-
-            if(impulse > FALLDOWN_THRESHOLD){
-                falldownCounter++;
-            }
-
-            String x_str = Float.toString(axisx);
-            String y_str = Float.toString(axisy);
-            String z_str = Float.toString(axisz);
-            String impulse_str = Float.toString(impulse);
-            gx.setText("x: " + x_str);
-            gy.setText("y: " + y_str);
-            gz.setText("z: " + z_str);
-            gImpulse.setText("impulse : " + impulse_str);
-
-            Log.v("gyroscope sensor x", x_str);
-            Log.v("gyroscope sensor y", y_str);
-            Log.v("gyroscope sensor z", z_str);
-            Log.v("gyroscope impulse", impulse_str);
-
-            long curTime = System.currentTimeMillis(); // 현재시간
-
-            if ((curTime - lastUpdate) > 100) {
-                lastUpdate = curTime;
-
-                //갱신
-                last_gx = axisx;
-                last_gy = axisy;
-                last_gz = axisz;
             }
         }
 
