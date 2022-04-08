@@ -37,7 +37,7 @@ public class Login extends AppCompatActivity {
 
         String UserEmail = sharedPreferences.getString("email", null);
         String UserPwd = sharedPreferences.getString("password", null);
-        String UserName = sharedPreferences.getString("name", null)
+        String UserName = sharedPreferences.getString("name", null);
         // 저장 된 값이 있다면 로그인 시도, 없으면 null 입력
         if (sharedPreferences.getString("email", null) != null && sharedPreferences.getString("password", null) != null) {
             Intent intent = new Intent(Login.this, MainActivity.class);
