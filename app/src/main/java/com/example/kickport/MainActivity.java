@@ -6,6 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -41,7 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
 
     private GpsTracker gpsTracker;
 
@@ -71,6 +74,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location mLastlocation = null;
     private double speed, calSpeed, getSpeed;
 
+    // 센서이용-중력 제외
+    private SensorManager sensorManager1;
+    private android.hardware.Sensor senAccelerometer1;
+
+    // 센서이용-중력 포함
+    private SensorManager sensorManager2;
+    private android.hardware.Sensor senAccelerometer2;
+
+    // 센서이용-자이로 센서
+    private SensorManager sensorManager3;
+    private android.hardware.Sensor senGyroscope;
+
+    private long lastUpdate = 0;
+    private float last_tlx, last_tly, last_tlz;
+    private float last_lx, last_ly, last_lz;
+    private float last_gx, last_gy, last_gz;
+
+    private double IMPULSE_THRESHOLD = 40;
+    private double FALLDOWN_THRESHOLD = 10;
+    private int impulseCounter = 0;
+    private int falldownCounter = 0;
+
+    private Button resetTrigger;
+
+    // 충격 횟수 세기
+    TextView tImpulseCounter;
+    // 넘어짐 횟수 세기
+    TextView tfalldownCounter;
+
 
 
     @Override
@@ -81,6 +113,36 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        sensorManager1 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senAccelerometer1 = sensorManager1.getDefaultSensor(android.hardware.Sensor.TYPE_LINEAR_ACCELERATION);
+        // 센서 종류 설정 - linear acceleration sensor 이용(중력 제외)
+
+        sensorManager2 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senAccelerometer2 = sensorManager2.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER);
+        // 센서 종류 설정 - accelerometer sensor 이용(중력 포함)
+
+        sensorManager3 = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+        senGyroscope = sensorManager3.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE);
+
+        sensorManager1.registerListener( MainActivity.this, senAccelerometer1, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager2.registerListener( MainActivity.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager3.registerListener( MainActivity.this, senGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+
+        resetTrigger = findViewById(R.id.resetButton);
+        tImpulseCounter = findViewById(R.id.impulseCnt);
+        tfalldownCounter = findViewById(R.id.falldownCnt);
+
+        resetTrigger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 모든 카운터 초기화
+                impulseCounter = 0;
+                falldownCounter = 0;
+                tImpulseCounter.setText(String.valueOf(impulseCounter));
+                tfalldownCounter.setText(String.valueOf(falldownCounter));
+            }
+        });
 
 
         if (!checkLocationServicesStatus()) {
@@ -425,6 +487,205 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setLocationButtonEnabled(true);
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        android.hardware.Sensor mySensor = sensorEvent.sensor;
 
+        // 중력 제외
+        final TextView tlx = findViewById(R.id.lx);
+        final TextView tly = findViewById(R.id.ly);
+        final TextView tlz = findViewById(R.id.lz);
+        final TextView tlImpulse = findViewById(R.id.limpulse);
+
+        // 중력 포함
+        final TextView tx = findViewById(R.id.x);
+        final TextView ty = findViewById(R.id.y);
+        final TextView tz = findViewById(R.id.z);
+        final TextView tImpulse = findViewById(R.id.impulse);
+
+        // 각속도
+        final TextView gx = findViewById(R.id.gx);
+        final TextView gy = findViewById(R.id.gy);
+        final TextView gz = findViewById(R.id.gz);
+        final TextView gImpulse = findViewById(R.id.gimpulse);
+
+        // 중력 제외인 경우
+        if(mySensor.getType() == android.hardware.Sensor.TYPE_LINEAR_ACCELERATION){
+
+            float x = sensorEvent.values[0];
+            float y = sensorEvent.values[1];
+            float z = sensorEvent.values[2];
+            float impulse = (float)Math.sqrt( Math.pow(z-last_tlz, 2)
+                    + Math.pow(x-last_tlx, 2)
+                    + Math.pow(y-last_tly, 2));
+
+            if (impulse > IMPULSE_THRESHOLD){
+                impulseCounter++;
+
+            }
+
+            String x_str = Float.toString(x);
+            String y_str = Float.toString(y);
+            String z_str = Float.toString(z);
+            String impulse_str = Float.toString(impulse);
+
+            String counter_str = Integer.toString(impulseCounter);
+
+            tlx.setText("x: " + x_str);
+            tly.setText("y: " + y_str);
+            tlz.setText("z: " + z_str);
+            tlImpulse.setText("impulse : " + impulse_str);
+
+            tImpulseCounter.setText("impulse counter : " + counter_str);
+
+            Log.v("linear acceleration sensor x", x_str);
+            Log.v("linear acceleration sensor y", y_str);
+            Log.v("linear acceleration sensor z", z_str);
+            Log.v("linear acceleration impulse", impulse_str);
+            Log.v("linear acceleration impulse counter", counter_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간, ms
+
+            // 0.1초 간격으로 가속도값을 업데이트
+            if((curTime - lastUpdate) > 100) {
+
+                lastUpdate = curTime;
+
+                //갱신
+                last_tlx = x;
+                last_tly = y;
+                last_tlz = z;
+            }
+        }
+
+        // 중력 포함인 경우
+        else if(mySensor.getType() == android.hardware.Sensor.TYPE_ACCELEROMETER){
+
+            float x = sensorEvent.values[0];
+            float y = sensorEvent.values[1];
+            float z = sensorEvent.values[2];
+            float impulse = (float)Math.sqrt( Math.pow(z-last_lz, 2)
+                    + Math.pow(x-last_lx, 2)
+                    + Math.pow(y-last_ly, 2));
+
+            String x_str = Float.toString(x);
+            String y_str = Float.toString(y);
+            String z_str = Float.toString(z);
+            String impulse_str = Double.toString(impulse);
+            tx.setText("x: " + x_str);
+            ty.setText("y: " + y_str);
+            tz.setText("z: " + z_str);
+            tImpulse.setText("impulse : " + impulse_str);
+
+            Log.v("accelerometer sensor x", x_str);
+            Log.v("accelerometer sensor y", y_str);
+            Log.v("accelerometer sensor z", z_str);
+            Log.v("accelerometer impulse", impulse_str);
+
+
+            long curTime = System.currentTimeMillis(); // 현재시간
+
+            // 0.1초 간격으로 가속도값을 업데이트
+            if((curTime - lastUpdate) > 100) {
+
+                lastUpdate = curTime;
+
+                //갱신
+                last_lx = x;
+                last_ly = y;
+                last_lz = z;
+
+            }
+        }
+        // 각속도 구하기
+        else if(mySensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE){
+
+            float axisx = sensorEvent.values[0];
+            float axisy = sensorEvent.values[1];
+            float axisz = sensorEvent.values[2];
+            float impulse = (float)Math.sqrt( Math.pow(axisz-last_gz, 2)
+                    + Math.pow(axisx-last_gx, 2)
+                    + Math.pow(axisy-last_gy, 2));
+
+            if (impulse > FALLDOWN_THRESHOLD){
+                falldownCounter++;
+            }
+
+            String x_str = Float.toString(axisx);
+            String y_str = Float.toString(axisy);
+            String z_str = Float.toString(axisz);
+            String impulse_str = Float.toString(impulse);
+            String counter_str = Integer.toString(falldownCounter);
+            gx.setText("x: " + x_str);
+            gy.setText("y: " + y_str);
+            gz.setText("z: " + z_str);
+            gImpulse.setText("impulse : " + impulse_str);
+            tfalldownCounter.setText("falldown counter : " + counter_str);
+
+            Log.v("gyroscope sensor x", x_str);
+            Log.v("gyroscope sensor y", y_str);
+            Log.v("gyroscope sensor z", z_str);
+            Log.v("gyroscope impulse", impulse_str);
+            Log.v("gyroscope falldown counter", counter_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간
+
+            if((curTime - lastUpdate) > 100) {
+                lastUpdate = curTime;
+
+                //갱신
+                last_gx = axisx;
+                last_gy = axisy;
+                last_gz = axisz;
+
+            }
+        }
+
+        // 각속도 구하기
+        else if(mySensor.getType() == android.hardware.Sensor.TYPE_GYROSCOPE) {
+
+            float axisx = sensorEvent.values[0];
+            float axisy = sensorEvent.values[1];
+            float axisz = sensorEvent.values[2];
+            float impulse = (float) Math.sqrt(Math.pow(axisz - last_gz, 2)
+                    + Math.pow(axisx - last_gx, 2)
+                    + Math.pow(axisy - last_gy, 2));
+
+            if(impulse > FALLDOWN_THRESHOLD){
+                falldownCounter++;
+            }
+
+            String x_str = Float.toString(axisx);
+            String y_str = Float.toString(axisy);
+            String z_str = Float.toString(axisz);
+            String impulse_str = Float.toString(impulse);
+            gx.setText("x: " + x_str);
+            gy.setText("y: " + y_str);
+            gz.setText("z: " + z_str);
+            gImpulse.setText("impulse : " + impulse_str);
+
+            Log.v("gyroscope sensor x", x_str);
+            Log.v("gyroscope sensor y", y_str);
+            Log.v("gyroscope sensor z", z_str);
+            Log.v("gyroscope impulse", impulse_str);
+
+            long curTime = System.currentTimeMillis(); // 현재시간
+
+            if ((curTime - lastUpdate) > 100) {
+                lastUpdate = curTime;
+
+                //갱신
+                last_gx = axisx;
+                last_gy = axisy;
+                last_gz = axisz;
+            }
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(android.hardware.Sensor sensor, int i) {
+
+    }
 
 }
