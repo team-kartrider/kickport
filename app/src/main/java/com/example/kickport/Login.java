@@ -49,6 +49,7 @@ public class Login extends AppCompatActivity {
         }
 
 
+
         //join버튼 클릭시 register페이지로 이동
         join_move = findViewById(R.id.join);
         join_move.setOnClickListener(new View.OnClickListener() {
