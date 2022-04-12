@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mapView = findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this)
+        mapView.getMapAsync(this);
      
 //         resetTrigger.setOnClickListener(new View.OnClickListener() {
 //             @Override
