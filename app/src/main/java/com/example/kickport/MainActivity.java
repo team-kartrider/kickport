@@ -48,9 +48,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GpsTracker gpsTracker;
 
-    
-    private android.hardware.Sensor senGyroscope;
-
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     String[] REQUIRED_PERMISSIONS = {
@@ -107,8 +104,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // 넘어짐 횟수 세기
     TextView tfalldownCounter;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,8 +124,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //             }
 //         });
 
-        
-        
 
         if (!checkLocationServicesStatus()) {
 
@@ -490,12 +483,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setZoomControlEnabled(true);
         uiSettings.setLocationButtonEnabled(true);
     }
-    
 
-    @Override
-    public void onAccuracyChanged(android.hardware.Sensor sensor, int i) {
-
-    }
     
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
