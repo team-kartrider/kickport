@@ -92,17 +92,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private float LAx, LAy, LAz, lastLAx, lastLAy, lastLAz;
     private float Ax, Ay, Az, lastAx, lastAy, lastAz;
 
-    private double IMPULSE_THRESHOLD = 40;
+    private double THRESHOLD_A = 40;
     private double FALLDOWN_THRESHOLD = 10;
     private int impulseCounter = 0;
     private int falldownCounter = 0;
 
     private Button resetTrigger;
 
-    // 충격 횟수 세기
-    TextView tImpulseCounter;
-    // 넘어짐 횟수 세기
-    TextView tfalldownCounter;
+//    // 충격 횟수 세기
+//    TextView tImpulseCounter;
+//    // 넘어짐 횟수 세기
+//    TextView tfalldownCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -488,6 +488,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         android.hardware.Sensor mySensor = sensorEvent.sensor;
+        // 중력 제외인 경우
         if(mySensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
             LAx = sensorEvent.values[0];
             LAy = sensorEvent.values[1];
@@ -508,6 +509,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 lastLAz = LAz;
             }
         }
+        // 중력 포함인 경우
         else if(mySensor.getType() == Sensor.TYPE_ACCELEROMETER){
             Ax = sensorEvent.values[0];
             Ay = sensorEvent.values[1];
@@ -515,6 +517,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Aimpulse = (float) Math.sqrt(Math.pow(Ax - lastAx, 2)
                                         + Math.pow(Ay - lastAy, 2)
                                         + Math.pow(Az - lastAz, 2));
+
+            if(Aimpulse > THRESHOLD_A){
+                impulseCounter++;
+                if(impulseCounter == 2){
+                    impulseCounter = 0;
+                    Intent intent = new Intent(MainActivity.this, Detected.class);
+                    startActivity(intent);
+                }
+            }
 
             long curTime = System.currentTimeMillis(); // 현재시간, ms
             // 0.1초 간격으로 가속도값을 업데이트
@@ -529,6 +540,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
 
         }
+        // 각속도 구하기
         else if(mySensor.getType() == Sensor.TYPE_GYROSCOPE){
             Gx = sensorEvent.values[0];
             Gy = sensorEvent.values[1];
