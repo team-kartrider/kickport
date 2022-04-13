@@ -12,14 +12,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="26dp"
-            android:text="사고가 감지되었습니다."/>
+            android:text="사고가 발생되었습니까?"/>
 
         <Button
             android:id="@+id/accident_check"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
-            android:text="확인" />
+            android:text="아니오" />
 
         <Button
             android:id="@+id/accident_report"
