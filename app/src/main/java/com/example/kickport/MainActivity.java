@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // 센서이용-자이로 센서
     private SensorManager sensorManager3;
-    private android.hardware.Sensor senGyroscope;
+
     
     private long lastUpdate = 0;
     private float LAimpulse, Aimpulse, Gimpulse;
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mapView = findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this)
+        mapView.getMapAsync(this);
      
 //         resetTrigger.setOnClickListener(new View.OnClickListener() {
 //             @Override
@@ -154,16 +154,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //액션바 변경하기(들어갈 수 있는 타입 : Toolbar type
         setSupportActionBar(toolbar);
 
+        if(impulseCounter > 0 || falldownCounter > 0){
+            Intent intent = new Intent(MainActivity.this, Accident.class);
+            startActivity(intent);
+            finish();
+            // 초기화
+            impulseCounter = 0;
+            falldownCounter = 0;
+        }
 
-        // 주행 시작 버튼 누른 경우 - 현 위치 및 타이머 잡기로~
+
+        // 사고 신고 버튼 누른 경우 - 나중에 변수명 바꿀 것
         btn_move = (Button) findViewById(R.id.start);
         btn_move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+                Intent intent = new Intent(MainActivity.this, Accident.class);
+                startActivity(intent);
+                finish();
 
-                // 버튼 누를시 텍스트 변경
+                // naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
+
+
+                /* 버튼 누를시 텍스트 변경
                 if (isMove == false){
                     btn_move.setText("주행 종료");
                     isMove = true;
@@ -171,6 +185,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     btn_move.setText("주행 시작");
                     isMove = false;
                 }
+                */
+
             }
         });
 
@@ -508,6 +524,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         + Math.pow(LAy - lastLAy, 2)
                                         + Math.pow(LAz - lastLAz, 2));
 
+            if (LAimpulse > IMPULSE_THRESHOLD){
+                impulseCounter++;
+
+            }
+
             long curTime = System.currentTimeMillis(); // 현재시간, ms
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
@@ -549,6 +570,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         + Math.pow(Gy - lastGy, 2)
                                         + Math.pow(Gz - lastGz, 2));
 
+            if (Gimpulse > FALLDOWN_THRESHOLD){
+                falldownCounter++;
+            }
+
             long curTime = System.currentTimeMillis(); // 현재시간, ms
             // 0.1초 간격으로 가속도값을 업데이트
             if((curTime - lastUpdate) > 100) {
@@ -563,8 +588,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
-    }
 }
