@@ -129,7 +129,7 @@
                 android:gravity="center"
                 android:paddingVertical="10dp"
                 android:paddingHorizontal="50dp"
-                android:text="주행 시작" />
+                android:text="사고 신고" />
 
 
         </LinearLayout>
