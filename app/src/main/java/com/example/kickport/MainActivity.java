@@ -583,7 +583,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(impulseCounter > 0 || falldownCounter > 0){
             Intent intent = new Intent(MainActivity.this, Accident.class);
             startActivity(intent);
-            finish();
             // 초기화
             impulseCounter = 0;
             falldownCounter = 0;
