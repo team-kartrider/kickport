@@ -14,6 +14,13 @@
             android:textSize="26dp"
             android:text="사고가 발생되었습니까?"/>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="26dp"
+            android:id="@+id/count"
+            android:text="자동 신고: 30 초 남았습니다."/>
+
         <Button
             android:id="@+id/accident_check"
             android:layout_width="match_parent"
