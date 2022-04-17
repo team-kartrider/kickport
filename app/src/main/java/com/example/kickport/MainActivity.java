@@ -95,8 +95,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private float LAx, LAy, LAz, lastLAx, lastLAy, lastLAz;
     private float Ax, Ay, Az, lastAx, lastAy, lastAz;
 
-    private double IMPULSE_THRESHOLD = 40;
-    private double FALLDOWN_THRESHOLD = 10;
+    private double IMPULSE_THRESHOLD = 50;
+    private double FALLDOWN_THRESHOLD = 30;
     private int impulseCounter = 0;
     private int falldownCounter = 0;
 
@@ -154,14 +154,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //액션바 변경하기(들어갈 수 있는 타입 : Toolbar type
         setSupportActionBar(toolbar);
 
-        if(impulseCounter > 0 || falldownCounter > 0){
-            Intent intent = new Intent(MainActivity.this, Accident.class);
-            startActivity(intent);
-            finish();
-            // 초기화
-            impulseCounter = 0;
-            falldownCounter = 0;
-        }
+
 
 
         // 사고 신고 버튼 누른 경우 - 나중에 변수명 바꿀 것
@@ -585,6 +578,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 lastGy = Gy;
                 lastGz = Gz;
             }
+        }
+
+        if(impulseCounter > 0 || falldownCounter > 0){
+            Intent intent = new Intent(MainActivity.this, Accident.class);
+            startActivity(intent);
+            finish();
+            // 초기화
+            impulseCounter = 0;
+            falldownCounter = 0;
         }
     }
 
