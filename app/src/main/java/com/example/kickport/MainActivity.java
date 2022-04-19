@@ -494,6 +494,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setLocationButtonEnabled(true);
     }
 
+    @Override
+    public void onAccuracyChanged(android.hardware.Sensor sensor, int i) {
+
+    }
     
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -533,11 +537,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         + Math.pow(Ay - lastAy, 2)
                                         + Math.pow(Az - lastAz, 2));
 
-            if(Aimpulse > THRESHOLD_A){
+            if(Aimpulse > IMPULSE_THRESHOLD){
                 impulseCounter++;
                 if(impulseCounter == 2){
                     impulseCounter = 0;
-                    Intent intent = new Intent(MainActivity.this, Detected.class);
+                    Intent intent = new Intent(MainActivity.this, Accident.class);
                     startActivity(intent);
                 }
             }
