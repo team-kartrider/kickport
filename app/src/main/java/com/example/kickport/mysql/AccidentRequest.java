@@ -14,11 +14,16 @@ public class AccidentRequest extends StringRequest {
    private Map<String, String> map;
    //private Map<String, String>parameters;
 
-   public AccidentRequest(String AccidentType, Response.Listener<String> listener) {
+   public AccidentRequest(String user_name, String user_id, String accident_number, String accident_date, String accident_type, String accident_place, Response.Listener<String> listener) {
       super(Method.POST, URL, listener, null);
 
       map = new HashMap<>();
-      map.put("accident_type", AccidentType);
+      map.put("user_name", user_name);
+      map.put("user_id", user_id);
+      map.put("accident_number", accident_number);
+      map.put("accident_date", accident_date);
+      map.put("accident_type", accident_type);
+      map.put("accident_place", accident_place);
 
    }
 

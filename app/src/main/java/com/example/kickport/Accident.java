@@ -4,6 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -36,6 +37,10 @@ public class Accident extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.accident_detection);
 
+        SharedPreferences sharedPreferences = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        String UserName = sharedPreferences.getString("name", "");
+        String UserEmail = sharedPreferences.getString("email", "");
+
         // 카운트 다운 객체
         CountDownTimer countDownTimer;
         
@@ -53,7 +58,10 @@ public class Accident extends AppCompatActivity {
                 count.setText("자동 신고가 진행됩니다.");
 
                 // 사고 유형 구하기 + 다른 값(아이디/이름 등) 넣어 주는 것 진행하기
-                String AccidentType = "충돌/넘어짐";
+                String AccidentNumber = "사고 번호";
+                String AccidentDate = "사고 날짜와 시간";
+                String AccidentType = "사고 유형";
+                String AccidentPlace = "사고 장소";
 
                 // DB로 값 보내기
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
@@ -66,7 +74,7 @@ public class Accident extends AppCompatActivity {
 
                             if (success) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(Accident.this);
-                                dialog = builder.setMessage("자동신고가 완료되었습니다.").setPositiveButton("확인", null).create();
+                                dialog = builder.setMessage("신고가 완료되었습니다.").setPositiveButton("확인", null).create();
                                 dialog.show();
                             }
                             else {
@@ -77,7 +85,7 @@ public class Accident extends AppCompatActivity {
                         }
                     }
                 };
-                AccidentRequest accidentRequest = new AccidentRequest(AccidentType, responseListener);
+                AccidentRequest accidentRequest = new AccidentRequest(UserName, UserEmail, AccidentNumber, AccidentDate, AccidentType, AccidentPlace, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(Accident.this);
                 queue.add(accidentRequest);
 
@@ -96,7 +104,6 @@ public class Accident extends AppCompatActivity {
 
                 Intent intent = new Intent(Accident.this, MainActivity.class);
                 startActivity(intent);
-                finish();
 
             }
         });
