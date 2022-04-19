@@ -1,6 +1,5 @@
 package com.example.kickport;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,6 +22,8 @@ public class Login extends AppCompatActivity {
 
     private EditText login_email, login_password;
     private Button join_move, login_button;
+
+    private long backBtnTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,5 +112,20 @@ public class Login extends AppCompatActivity {
 
             }
         });
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        long curTime = System.currentTimeMillis();
+        long gapTime = curTime - backBtnTime;
+
+        if(0 <= gapTime && 2000 >= gapTime) {
+            super.onBackPressed();
+        }
+        else {
+            backBtnTime = curTime;
+            Toast.makeText(this, "한번 더 누르면 종료됩니다",Toast.LENGTH_SHORT).show();
+        }
     }
 }

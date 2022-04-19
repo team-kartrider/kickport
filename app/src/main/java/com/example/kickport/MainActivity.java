@@ -105,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //    // 넘어짐 횟수 세기
 //    TextView tfalldownCounter;
 
+    private long backBtnTime = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -591,6 +593,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             // 초기화
             impulseCounter = 0;
             falldownCounter = 0;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        long curTime = System.currentTimeMillis();
+        long gapTime = curTime - backBtnTime;
+
+        if(0 <= gapTime && 2000 >= gapTime) {
+            super.onBackPressed();
+        }
+        else {
+            backBtnTime = curTime;
+            Toast.makeText(this, "한번 더 누르면 종료됩니다",Toast.LENGTH_SHORT).show();
         }
     }
 
