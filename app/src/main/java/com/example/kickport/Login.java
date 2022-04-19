@@ -76,13 +76,17 @@ public class Login extends AppCompatActivity {
 
                             if(success) {//로그인 성공시
 
+
                                 editor.putString("email",UserEmail);
                                 editor.putString("password", UserPwd);
-                                editor.commit();
+
 
                                 String UserEmail = jsonObject.getString( "user_id" );
                                 String UserPwd = jsonObject.getString( "user_password" );
                                 String UserName = jsonObject.getString( "user_name" );
+
+                                editor.putString("name", UserName);
+                                editor.commit();
 
                                 Toast.makeText( getApplicationContext(), String.format("%s님 환영합니다.", UserName), Toast.LENGTH_SHORT ).show();
                                 Intent intent = new Intent( Login.this, MainActivity.class );
