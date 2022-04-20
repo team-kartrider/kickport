@@ -109,12 +109,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-
+        //사용자가 GPS 활성 시켰는지 검사
         if (!checkLocationServicesStatus()) {
-
+            //사용자가 GPS를 꺼뒀다면 GPS(위치 설정) 키도록 요청
             showDialogForLocationServiceSetting();
         }else {
-
+            //위치정보 사용 권한을 받지 못했다면 권한 받기
             checkRunTimePermission();
         }
 
@@ -223,9 +223,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
             if (check_result) {
-
                 //위치 값을 가져올 수 있음
-                ;
+                mapView.getMapAsync(this);
             } else {
                 // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
 
@@ -375,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    //사용자가 GPS 활성 시켰는지 검사
     public boolean checkLocationServicesStatus() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
