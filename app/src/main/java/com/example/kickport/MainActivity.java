@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //         });
 
         
-        
 
         if (!checkLocationServicesStatus()) {
 
@@ -167,18 +166,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(intent);
                 finish();
 
-                // naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
-
-
-                /* 버튼 누를시 텍스트 변경
-                if (isMove == false){
-                    btn_move.setText("주행 종료");
-                    isMove = true;
-                }else{
-                    btn_move.setText("주행 시작");
-                    isMove = false;
-                }
-                */
 
             }
         });
@@ -252,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             boolean check_result = true;
 
+            Log.v("test", "권한 확인...?");
 
             // 모든 퍼미션을 허용했는지 체크합니다.
 
@@ -264,9 +252,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
             if (check_result) {
-
                 //위치 값을 가져올 수 있음
                 ;
+                Log.v("test", "현재 위치값도 가져올 수 있는 상태니...?");
+                naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
             } else {
                 // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
 
