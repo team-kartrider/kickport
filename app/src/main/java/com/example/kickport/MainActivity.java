@@ -32,6 +32,8 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapView;
 import com.naver.maps.map.NaverMap;
@@ -62,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationSource locationSource;
 
     private Button btn_move;
-    private boolean isMove = false;
 
     private static final String TAG = "Main_Activity";
 
@@ -92,18 +93,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private float LAx, LAy, LAz, lastLAx, lastLAy, lastLAz;
     private float Ax, Ay, Az, lastAx, lastAy, lastAz;
 
-
-    private double IMPULSE_THRESHOLD = 50;
+    private double IMPULSE_THRESHOLD = 25;
     private double FALLDOWN_THRESHOLD = 30;
     private int impulseCounter = 0;
     private int falldownCounter = 0;
-
-    private Button resetTrigger;
-
-//    // 충격 횟수 세기
-//    TextView tImpulseCounter;
-//    // 넘어짐 횟수 세기
-//    TextView tfalldownCounter;
 
     private long backBtnTime = 0;
 
@@ -115,17 +108,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-     
-//         resetTrigger.setOnClickListener(new View.OnClickListener() {
-//             @Override
-//             public void onClick(View v) {
-//                 // 모든 카운터 초기화
-//                 impulseCounter = 0;
-//                 falldownCounter = 0;
-//                 tImpulseCounter.setText(String.valueOf(impulseCounter));
-//                 tfalldownCounter.setText(String.valueOf(falldownCounter));
-//             }
-//         });
 
 
         if (!checkLocationServicesStatus()) {
@@ -139,43 +121,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 위치를 반환하는 구현체인 FusedLocationSource 생성
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
-
         ivMenu=findViewById(R.id.iv_menu);
         drawerLayout=findViewById(R.id.main);
         toolbar=findViewById(R.id.toolbar);
-
         nav = findViewById(R.id.navigation_view);
-
 
         //액션바 변경하기(들어갈 수 있는 타입 : Toolbar type
         setSupportActionBar(toolbar);
-
-
-
 
         // 사고 신고 버튼 누른 경우 - 나중에 변수명 바꿀 것
         btn_move = (Button) findViewById(R.id.start);
         btn_move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                impulseCounter = 0;
+                falldownCounter = 0;
 
                 Intent intent = new Intent(MainActivity.this, Accident.class);
                 startActivity(intent);
                 finish();
-
-                // naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
-
-
-                /* 버튼 누를시 텍스트 변경
-                if (isMove == false){
-                    btn_move.setText("주행 종료");
-                    isMove = true;
-                }else{
-                    btn_move.setText("주행 시작");
-                    isMove = false;
-                }
-                */
-
             }
         });
 
@@ -237,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         sensorManager2.registerListener( MainActivity.this, senAccelerometer2, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager3.registerListener( MainActivity.this, senGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
     }
-
 
     @Override
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
@@ -327,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
     public String getCurrentAddress( double latitude, double longitude) {
 
         //지오코더... GPS를 주소로 변환
@@ -364,8 +326,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-
-
     //여기부터는 GPS 활성화를 위한 메소드들
     private void showDialogForLocationServiceSetting() {
 
@@ -392,9 +352,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         builder.create().show();
     }
-
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -424,7 +381,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
-
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
@@ -515,7 +471,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             if (LAimpulse > IMPULSE_THRESHOLD){
                 impulseCounter++;
-
             }
 
             long curTime = System.currentTimeMillis(); // 현재시간, ms
@@ -538,15 +493,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Aimpulse = (float) Math.sqrt(Math.pow(Ax - lastAx, 2)
                                         + Math.pow(Ay - lastAy, 2)
                                         + Math.pow(Az - lastAz, 2));
-
-            if(Aimpulse > IMPULSE_THRESHOLD){
-                impulseCounter++;
-                if(impulseCounter == 2){
-                    impulseCounter = 0;
-                    Intent intent = new Intent(MainActivity.this, Accident.class);
-                    startActivity(intent);
-                }
-            }
 
             long curTime = System.currentTimeMillis(); // 현재시간, ms
             // 0.1초 간격으로 가속도값을 업데이트
@@ -587,12 +533,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        if(impulseCounter > 0 || falldownCounter > 0){
+        if(impulseCounter >= 5){
+            impulseCounter = 0;
             Intent intent = new Intent(MainActivity.this, Accident.class);
             startActivity(intent);
-            // 초기화
-            impulseCounter = 0;
+            finish();
+        }
+        else if(falldownCounter >= 2){
             falldownCounter = 0;
+            Intent intent = new Intent(MainActivity.this, Accident.class);
+            startActivity(intent);
+            finish();
         }
     }
 
