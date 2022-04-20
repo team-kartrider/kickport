@@ -2,11 +2,14 @@ package com.example.kickport;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +21,12 @@ import com.example.kickport.mysql.AccidentRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class Accident extends AppCompatActivity {
 
@@ -41,6 +50,17 @@ public class Accident extends AppCompatActivity {
         String UserName = sharedPreferences.getString("name", "");
         String UserEmail = sharedPreferences.getString("email", "");
 
+        GpsTracker gpsTracker = new GpsTracker(Accident.this);
+        double latitude = gpsTracker.getLatitude();
+        double longitude = gpsTracker.getLongitude();
+
+        // 사고 유형 구하기 + 다른 값(아이디/이름 등) 넣어 주는 것 진행하기
+        String AccidentNumber = getNumber(); // 사고 번호 - 아이디 + 사고 날짜 및 시간
+        String AccidentDate = getDate(); // 사고 날짜 및 시간
+        String AccidentType = sharedPreferences.getString("accident_type", ""); // 사고 유형
+        String AccidentPlace = getCurrentAddress(latitude, longitude); // 사고 장소
+
+
         // 카운트 다운 객체
         CountDownTimer countDownTimer;
         
@@ -56,12 +76,6 @@ public class Accident extends AppCompatActivity {
             @Override
             public void onFinish() {
                 count.setText("자동 신고가 진행됩니다.");
-
-                // 사고 유형 구하기 + 다른 값(아이디/이름 등) 넣어 주는 것 진행하기
-                String AccidentNumber = "사고 번호";
-                String AccidentDate = "사고 날짜와 시간";
-                String AccidentType = "사고 유형";
-                String AccidentPlace = "사고 장소";
 
                 // DB로 값 보내기
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
@@ -117,12 +131,6 @@ public class Accident extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                // 사고 유형 구하기 + 다른 값(아이디/이름 등) 넣어 주는 것 진행하기
-                String AccidentNumber = "사고 번호";
-                String AccidentDate = "사고 날짜와 시간";
-                String AccidentType = "사고 유형";
-                String AccidentPlace = "사고 장소";
-
                 // DB로 값 보내기
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
@@ -153,6 +161,50 @@ public class Accident extends AppCompatActivity {
 
             }
         });
+    }
+
+    private String getNumber() {
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddhhmmss");
+        String getTime = dateFormat.format(date);
+        return getTime;
+    }
+
+    private String getDate() {
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String getTime = dateFormat.format(date);
+        return getTime;
+    }
+
+    public String getCurrentAddress( double latitude, double longitude) {
+
+        //지오코더... GPS를 주소로 변환
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        List<Address> addresses;
+        try {
+
+            addresses = geocoder.getFromLocation(
+                    latitude,
+                    longitude,
+                    7);
+        } catch (IOException ioException) {
+            //네트워크 문제
+            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
+            return "지오코더 서비스 사용불가";
+        } catch (IllegalArgumentException illegalArgumentException) {
+            Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
+            return "잘못된 GPS 좌표";
+        }
+
+        if (addresses == null || addresses.size() == 0) {
+            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
+            return "주소 미발견";
+        }
+        Address address = addresses.get(0);
+        return address.getAddressLine(0).toString()+"\n";
     }
 
     @Override
