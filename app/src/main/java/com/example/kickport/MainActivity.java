@@ -32,6 +32,8 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.navigation.NavigationView;
+import com.naver.maps.geometry.LatLng;
+import com.naver.maps.map.CameraPosition;
 import com.naver.maps.map.LocationTrackingMode;
 import com.naver.maps.map.MapView;
 import com.naver.maps.map.NaverMap;
@@ -48,9 +50,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GpsTracker gpsTracker;
 
-    
-    private android.hardware.Sensor senGyroscope;
-
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     String[] REQUIRED_PERMISSIONS = {
@@ -65,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationSource locationSource;
 
     private Button btn_move;
-    private boolean isMove = false;
 
     private static final String TAG = "Main_Activity";
 
@@ -87,27 +85,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // 센서이용-자이로 센서
     private SensorManager sensorManager3;
+    private android.hardware.Sensor senGyroscope;
 
-    
     private long lastUpdate = 0;
     private float LAimpulse, Aimpulse, Gimpulse;
     private float Gx, Gy, Gz, lastGx, lastGy, lastGz;
     private float LAx, LAy, LAz, lastLAx, lastLAy, lastLAz;
     private float Ax, Ay, Az, lastAx, lastAy, lastAz;
 
-    private double IMPULSE_THRESHOLD = 50;
+    private double IMPULSE_THRESHOLD = 25;
     private double FALLDOWN_THRESHOLD = 30;
     private int impulseCounter = 0;
     private int falldownCounter = 0;
 
-    private Button resetTrigger;
-
-    // 충격 횟수 세기
-    TextView tImpulseCounter;
-    // 넘어짐 횟수 세기
-    TextView tfalldownCounter;
-
-
+    private long backBtnTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,19 +108,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-     
-//         resetTrigger.setOnClickListener(new View.OnClickListener() {
-//             @Override
-//             public void onClick(View v) {
-//                 // 모든 카운터 초기화
-//                 impulseCounter = 0;
-//                 falldownCounter = 0;
-//                 tImpulseCounter.setText(String.valueOf(impulseCounter));
-//                 tfalldownCounter.setText(String.valueOf(falldownCounter));
-//             }
-//         });
 
-        
 
         if (!checkLocationServicesStatus()) {
 
@@ -142,31 +121,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // 위치를 반환하는 구현체인 FusedLocationSource 생성
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
-
         ivMenu=findViewById(R.id.iv_menu);
         drawerLayout=findViewById(R.id.main);
         toolbar=findViewById(R.id.toolbar);
-
         nav = findViewById(R.id.navigation_view);
-
 
         //액션바 변경하기(들어갈 수 있는 타입 : Toolbar type
         setSupportActionBar(toolbar);
-
-
-
 
         // 사고 신고 버튼 누른 경우 - 나중에 변수명 바꿀 것
         btn_move = (Button) findViewById(R.id.start);
         btn_move.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                impulseCounter = 0;
+                falldownCounter = 0;
 
                 Intent intent = new Intent(MainActivity.this, Accident.class);
                 startActivity(intent);
                 finish();
-
-
             }
         });
 
@@ -229,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         sensorManager3.registerListener( MainActivity.this, senGyroscope, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-
     @Override
     public void onRequestPermissionsResult(int permsRequestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
 
@@ -239,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             boolean check_result = true;
 
-            Log.v("test", "권한 확인...?");
 
             // 모든 퍼미션을 허용했는지 체크합니다.
 
@@ -252,10 +223,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
             if (check_result) {
+
                 //위치 값을 가져올 수 있음
                 ;
-                Log.v("test", "현재 위치값도 가져올 수 있는 상태니...?");
-                naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
             } else {
                 // 거부한 퍼미션이 있다면 앱을 사용할 수 없는 이유를 설명해주고 앱을 종료합니다.2 가지 경우가 있습니다.
 
@@ -320,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
     public String getCurrentAddress( double latitude, double longitude) {
 
         //지오코더... GPS를 주소로 변환
@@ -357,8 +326,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-
-
     //여기부터는 GPS 활성화를 위한 메소드들
     private void showDialogForLocationServiceSetting() {
 
@@ -385,9 +352,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         builder.create().show();
     }
-
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -417,7 +381,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
-
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
@@ -488,27 +451,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         uiSettings.setZoomControlEnabled(true);
         uiSettings.setLocationButtonEnabled(true);
     }
-    
 
     @Override
     public void onAccuracyChanged(android.hardware.Sensor sensor, int i) {
 
     }
-    
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         android.hardware.Sensor mySensor = sensorEvent.sensor;
+        // 중력 제외인 경우
         if(mySensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
             LAx = sensorEvent.values[0];
             LAy = sensorEvent.values[1];
             LAz = sensorEvent.values[2];
             LAimpulse = (float) Math.sqrt(Math.pow(LAx - lastLAx, 2)
-                                        + Math.pow(LAy - lastLAy, 2)
-                                        + Math.pow(LAz - lastLAz, 2));
+                    + Math.pow(LAy - lastLAy, 2)
+                    + Math.pow(LAz - lastLAz, 2));
 
             if (LAimpulse > IMPULSE_THRESHOLD){
                 impulseCounter++;
-
             }
 
             long curTime = System.currentTimeMillis(); // 현재시간, ms
@@ -523,13 +485,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 lastLAz = LAz;
             }
         }
+        // 중력 포함인 경우
         else if(mySensor.getType() == Sensor.TYPE_ACCELEROMETER){
             Ax = sensorEvent.values[0];
             Ay = sensorEvent.values[1];
             Az = sensorEvent.values[2];
             Aimpulse = (float) Math.sqrt(Math.pow(Ax - lastAx, 2)
-                                        + Math.pow(Ay - lastAy, 2)
-                                        + Math.pow(Az - lastAz, 2));
+                    + Math.pow(Ay - lastAy, 2)
+                    + Math.pow(Az - lastAz, 2));
 
             long curTime = System.currentTimeMillis(); // 현재시간, ms
             // 0.1초 간격으로 가속도값을 업데이트
@@ -544,13 +507,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
 
         }
+        // 각속도 구하기
         else if(mySensor.getType() == Sensor.TYPE_GYROSCOPE){
             Gx = sensorEvent.values[0];
             Gy = sensorEvent.values[1];
             Gz = sensorEvent.values[2];
             Gimpulse = (float) Math.sqrt(Math.pow(Gx - lastGx, 2)
-                                        + Math.pow(Gy - lastGy, 2)
-                                        + Math.pow(Gz - lastGz, 2));
+                    + Math.pow(Gy - lastGy, 2)
+                    + Math.pow(Gz - lastGz, 2));
 
             if (Gimpulse > FALLDOWN_THRESHOLD){
                 falldownCounter++;
@@ -569,12 +533,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        if(impulseCounter > 0 || falldownCounter > 0){
+        if(impulseCounter >= 5){
+            impulseCounter = 0;
             Intent intent = new Intent(MainActivity.this, Accident.class);
             startActivity(intent);
-            // 초기화
-            impulseCounter = 0;
+            finish();
+        }
+        else if(falldownCounter >= 2){
             falldownCounter = 0;
+            Intent intent = new Intent(MainActivity.this, Accident.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        long curTime = System.currentTimeMillis();
+        long gapTime = curTime - backBtnTime;
+
+        if(0 <= gapTime && 2000 >= gapTime) {
+            super.onBackPressed();
+        }
+        else {
+            backBtnTime = curTime;
+            Toast.makeText(this, "한번 더 누르면 종료됩니다",Toast.LENGTH_SHORT).show();
         }
     }
 
