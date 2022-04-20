@@ -73,9 +73,11 @@ public class Accident extends AppCompatActivity {
                             boolean success = jsonResponse.getBoolean("success");
 
                             if (success) {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(Accident.this);
-                                dialog = builder.setMessage("신고가 완료되었습니다.").setPositiveButton("확인", null).create();
-                                dialog.show();
+                                count.setText("자동 신고가 완료되었습니다.");
+                                Intent intent = new Intent(Accident.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+
                             }
                             else {
 
@@ -104,6 +106,7 @@ public class Accident extends AppCompatActivity {
 
                 Intent intent = new Intent(Accident.this, MainActivity.class);
                 startActivity(intent);
+                finish();
 
             }
         });
@@ -114,11 +117,39 @@ public class Accident extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                /*
-                Intent intent = new Intent(Accident.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-                */
+                // 사고 유형 구하기 + 다른 값(아이디/이름 등) 넣어 주는 것 진행하기
+                String AccidentNumber = "사고 번호";
+                String AccidentDate = "사고 날짜와 시간";
+                String AccidentType = "사고 유형";
+                String AccidentPlace = "사고 장소";
+
+                // DB로 값 보내기
+                Response.Listener<String> responseListener = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+
+                            JSONObject jsonResponse = new JSONObject(response);
+                            boolean success = jsonResponse.getBoolean("success");
+
+                            if (success) {
+                                count.setText("신고가 완료되었습니다.");
+                                Intent intent = new Intent(Accident.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+
+                            }
+                            else {
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                AccidentRequest accidentRequest = new AccidentRequest(UserName, UserEmail, AccidentNumber, AccidentDate, AccidentType, AccidentPlace, responseListener);
+                RequestQueue queue = Volley.newRequestQueue(Accident.this);
+                queue.add(accidentRequest);
 
             }
         });
