@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mapView = findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
 
 
         if (!checkLocationServicesStatus()) {
@@ -223,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
             if (check_result) {
-
+                mapView.getMapAsync(this);
                 //위치 값을 가져올 수 있음
                 ;
             } else {
