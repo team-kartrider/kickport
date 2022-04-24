@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // 센서이용-자이로 센서
     private SensorManager sensorManager3;
     private android.hardware.Sensor senGyroscope;
-    
     private long lastUpdate = 0;
     private float LAimpulse, Aimpulse, Gimpulse;
     private float Gx, Gy, Gz, lastGx, lastGy, lastGz;
@@ -385,6 +384,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.naverMap = naverMap;
+
+        gpsTracker = new GpsTracker(MainActivity.this);
+
+        double latitude = gpsTracker.getLatitude();
+        double longitude = gpsTracker.getLongitude();
+
+        naverMap.setCameraPosition(new CameraPosition(new LatLng(latitude, longitude), 16));
+
         naverMap.setLocationSource(locationSource);
         naverMap.setLocationTrackingMode(LocationTrackingMode.Follow);
 
@@ -456,7 +463,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onAccuracyChanged(android.hardware.Sensor sensor, int i) {
 
     }
-    
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         android.hardware.Sensor mySensor = sensorEvent.sensor;
@@ -466,8 +473,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             LAy = sensorEvent.values[1];
             LAz = sensorEvent.values[2];
             LAimpulse = (float) Math.sqrt(Math.pow(LAx - lastLAx, 2)
-                                        + Math.pow(LAy - lastLAy, 2)
-                                        + Math.pow(LAz - lastLAz, 2));
+                    + Math.pow(LAy - lastLAy, 2)
+                    + Math.pow(LAz - lastLAz, 2));
 
             if (LAimpulse > IMPULSE_THRESHOLD){
                 impulseCounter++;
@@ -491,8 +498,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Ay = sensorEvent.values[1];
             Az = sensorEvent.values[2];
             Aimpulse = (float) Math.sqrt(Math.pow(Ax - lastAx, 2)
-                                        + Math.pow(Ay - lastAy, 2)
-                                        + Math.pow(Az - lastAz, 2));
+                    + Math.pow(Ay - lastAy, 2)
+                    + Math.pow(Az - lastAz, 2));
 
             long curTime = System.currentTimeMillis(); // 현재시간, ms
             // 0.1초 간격으로 가속도값을 업데이트
@@ -513,8 +520,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Gy = sensorEvent.values[1];
             Gz = sensorEvent.values[2];
             Gimpulse = (float) Math.sqrt(Math.pow(Gx - lastGx, 2)
-                                        + Math.pow(Gy - lastGy, 2)
-                                        + Math.pow(Gz - lastGz, 2));
+                    + Math.pow(Gy - lastGy, 2)
+                    + Math.pow(Gz - lastGz, 2));
 
             if (Gimpulse > FALLDOWN_THRESHOLD){
                 falldownCounter++;
@@ -534,12 +541,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         if(impulseCounter >= 5){
+        SharedPreferences sharedPreferences = getSharedPreferences("loginInfo", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        if(impulseCounter >= 5){
+            String AccidentType = sharedPreferences.getString("accident_type", "");
+            editor.putString("accident_type", "충돌");
+            editor.commit();
             impulseCounter = 0;
             Intent intent = new Intent(MainActivity.this, Accident.class);
             startActivity(intent);
             finish();
         }
         else if(falldownCounter >= 2){
+            String AccidentType = sharedPreferences.getString("accident_type", "");
+            editor.putString("accident_type", "넘어짐");
+            editor.commit();
             falldownCounter = 0;
             Intent intent = new Intent(MainActivity.this, Accident.class);
             startActivity(intent);
