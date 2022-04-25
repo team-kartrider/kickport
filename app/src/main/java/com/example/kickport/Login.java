@@ -120,16 +120,16 @@ public class Login extends AppCompatActivity {
 
 
     @Override
-    public void onBackPressed() {
+    public void onBackPressed () {
         long curTime = System.currentTimeMillis();
         long gapTime = curTime - backBtnTime;
 
-        if(0 <= gapTime && 2000 >= gapTime) {
-            super.onBackPressed();
+        if (0 <= gapTime && 2000 >= gapTime) {
+            finish();
         }
         else {
             backBtnTime = curTime;
-            Toast.makeText(this, "한번 더 누르면 종료됩니다",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "한번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show();
         }
     }
 }

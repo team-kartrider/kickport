@@ -14,9 +14,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
@@ -214,5 +211,6 @@ public class Accident extends AppCompatActivity {
     public void onBackPressed() {
         Intent intent = new Intent(Accident.this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 }
