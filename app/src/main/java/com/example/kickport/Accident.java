@@ -211,5 +211,6 @@ public class Accident extends AppCompatActivity {
     public void onBackPressed() {
         Intent intent = new Intent(Accident.this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 }
