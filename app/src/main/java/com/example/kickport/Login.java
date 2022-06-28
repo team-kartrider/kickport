@@ -1,6 +1,5 @@
 package com.example.kickport;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -24,6 +23,8 @@ public class Login extends AppCompatActivity {
     private EditText login_email, login_password;
     private Button join_move, login_button;
 
+    private long backBtnTime = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,52 +36,17 @@ public class Login extends AppCompatActivity {
         login_email = findViewById(R.id.login_email);
         login_password = findViewById(R.id.login_password);
 
+        String UserEmail = sharedPreferences.getString("email", null);
+        String UserPwd = sharedPreferences.getString("password", null);
+        String UserName = sharedPreferences.getString("name", null);
         // 저장 된 값이 있다면 로그인 시도, 없으면 null 입력
-        if (sharedPreferences.getString("email", null) != null && sharedPreferences.getString("password", null) != null){
-
-            login_email.setText(sharedPreferences.getString("email", null));
-            login_password.setText(sharedPreferences.getString("password", null));
-
-            String UserEmail = login_email.getText().toString();
-            String UserPwd = login_password.getText().toString();
-
-            Response.Listener<String> responseListener = new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONObject jsonObject = new JSONObject( response );
-                        boolean success = jsonObject.getBoolean( "success" );
-
-                        if(success) {//로그인 성공시
-
-                            String UserEmail = jsonObject.getString( "user_id" );
-                            String UserPwd = jsonObject.getString( "user_password" );
-                            String UserName = jsonObject.getString( "user_name" );
-
-                            Toast.makeText( getApplicationContext(), String.format("%s님 환영합니다.", UserName), Toast.LENGTH_SHORT ).show();
-                            Intent intent = new Intent( Login.this, MainActivity.class );
-
-
-                            intent.putExtra( "user_id", UserEmail );
-                            intent.putExtra( "user_password", UserPwd );
-                            intent.putExtra( "user_name", UserName );
-
-                            startActivity( intent );
-                            finish();
-
-                        } else {//로그인 실패시
-                            Toast.makeText( getApplicationContext(), "로그인에 실패하셨습니다.", Toast.LENGTH_SHORT ).show();
-                            return;
-                        }
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-            LoginRequest loginRequest = new LoginRequest( UserEmail, UserPwd, responseListener );
-            RequestQueue queue = Volley.newRequestQueue( Login.this );
-            queue.add( loginRequest );
+        if (sharedPreferences.getString("email", null) != null && sharedPreferences.getString("password", null) != null) {
+            Intent intent = new Intent(Login.this, MainActivity.class);
+            intent.putExtra("user_id", UserEmail);
+            intent.putExtra("user_password", UserPwd);
+            intent.putExtra("user_name", UserName);
+            startActivity(intent);
+            finish();
         }
 
 
@@ -92,7 +58,6 @@ public class Login extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Login.this, Register.class);
                 startActivity(intent);
-                finish();
             }
         });
 
@@ -112,13 +77,17 @@ public class Login extends AppCompatActivity {
 
                             if(success) {//로그인 성공시
 
+
                                 editor.putString("email",UserEmail);
                                 editor.putString("password", UserPwd);
-                                editor.commit();
+
 
                                 String UserEmail = jsonObject.getString( "user_id" );
                                 String UserPwd = jsonObject.getString( "user_password" );
                                 String UserName = jsonObject.getString( "user_name" );
+
+                                editor.putString("name", UserName);
+                                editor.commit();
 
                                 Toast.makeText( getApplicationContext(), String.format("%s님 환영합니다.", UserName), Toast.LENGTH_SHORT ).show();
                                 Intent intent = new Intent( Login.this, MainActivity.class );
@@ -147,5 +116,20 @@ public class Login extends AppCompatActivity {
 
             }
         });
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        long curTime = System.currentTimeMillis();
+        long gapTime = curTime - backBtnTime;
+
+        if(0 <= gapTime && 2000 >= gapTime) {
+            finish();
+        }
+        else {
+            backBtnTime = curTime;
+            Toast.makeText(this, "한번 더 누르면 종료됩니다", Toast.LENGTH_SHORT).show();
+        }
     }
 }
